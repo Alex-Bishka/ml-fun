@@ -46,6 +46,10 @@ class Value:
         out._backward = _backward
 
         return out
+
+    
+    def __radd__(self, other):
+        return self + other
         
     
     def __rmul__(self, other): # other * self
@@ -80,7 +84,7 @@ class Value:
         out = Value(data=t, _children=(self, ), _op='tanh')
 
         def _backward():
-            self.grad += 1 - t**2 * out.grad
+            self.grad += (1 - t**2) * out.grad
         out._backward = _backward
         
         return out
