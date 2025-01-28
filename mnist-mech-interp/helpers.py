@@ -62,7 +62,7 @@ def generate_intermediate_edge_labels(images, kernel):
     intermediate_labels_list = []
     for img in images:
         edges = get_edges(kernel, img)
-        intermediate_labels_list.append(edges)
+        intermediate_labels_list.append(edges.flatten())
     
     intermediate_labels = np.array(intermediate_labels_list)
     return intermediate_labels
