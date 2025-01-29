@@ -36,14 +36,19 @@ def load_labels(file_path: str) -> np.array:
     return labels
 
 
-def visualize_image(sample_img, sample_label):
+def visualize_image(sample_img, sample_label, ax=None):
     """
     """
-    plt.figure(figsize=(3, 3))
-    plt.imshow(sample_img, cmap='gray')
-    plt.title(f"Label: {sample_label}")
-    plt.axis('off')
-    plt.show()
+    if ax is None:
+        plt.figure(figsize=(3, 3))
+        plt.imshow(sample_img, cmap='gray')
+        plt.title(f"Label: {sample_label}")
+        plt.axis('off')
+        plt.show()
+    else:
+        ax.imshow(sample_img, cmap='gray')
+        ax.set_title(f"Label: {sample_label}")
+        ax.axis("off")
 
 
 def get_edges(kernel, img):
