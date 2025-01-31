@@ -3,6 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import convolve2d
 
+vertical_kernel = np.array([
+    [-1,  0,  1],
+    [-1,  0,  1],
+    [-1,  0,  1],
+])
+
+horizontal_kernel = np.array([
+    [-1, -1, -1],
+    [ 0,  0 , 0],
+    [ 1,  1,  1],
+])
 
 def load_images(file_path: str) -> np.array:
     """
