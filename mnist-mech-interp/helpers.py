@@ -1,7 +1,9 @@
+import pickle
 import struct
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import convolve2d
+from scipy.ndimage import rotate
 
 vertical_kernel = np.array([
     [-1,  0,  1],
@@ -13,6 +15,14 @@ horizontal_kernel = np.array([
     [-1, -1, -1],
     [ 0,  0 , 0],
     [ 1,  1,  1],
+])
+
+curve_kernel = np.array([
+    [  0,  0,-.5, -1,  0],
+    [  0,-.5, -1,  0,  1],
+    [-.5, -1,  0,  1, .5],
+    [ -1,  0,  1, .5,  0],
+    [  0,  1, .5,  0,  0]
 ])
 
 def load_images(file_path: str) -> np.array:
@@ -43,6 +53,22 @@ def load_labels(file_path: str) -> np.array:
             raise ValueError(f"Invalid magic number: {magic}")
 
         labels = np.frombuffer(f.read(), dtype=np.uint8)
+
+    return labels
+
+
+def save_intermediate_labels(file_name, intermediate_label):
+    file_path = f"./intermediate-labels/{file_name}"
+    with open(file_path, "wb") as f:
+        pickle.dump(intermediate_label, f)
+
+    print("Intermediate label has been saved!")
+
+
+def load_intermediate_labels(file_name):
+    file_path = f"./intermediate-labels/{file_name}"
+    with open(file_path, "rb") as f:
+        labels = pickle.load(f)
 
     return labels
 
@@ -82,3 +108,24 @@ def generate_intermediate_edge_labels(images, kernel):
     
     intermediate_labels = np.array(intermediate_labels_list)
     return intermediate_labels
+
+
+def generate_intermediate_curve_labels(images, threshold = 80):
+    """
+    """
+    thetas = list(range(0, 180 + 1, 10))
+    curve_labels_list = []
+    for img in images:
+        curves = np.zeros((28, 28))
+        
+        for theta in thetas:
+            rotated_kernel = rotate(curve_kernel, theta)
+            curves += get_edges(rotated_kernel, img)
+
+        avg_curves = curves / len(thetas)
+        thresholded_avg_curves = np.where(avg_curves < threshold, 0, avg_curves)
+        curve_labels_list.append(thresholded_avg_curves.flatten())
+
+    curve_labels = np.array(curve_labels_list)
+    return curve_labels
+        
