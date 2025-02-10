@@ -79,7 +79,7 @@ def visualize_image(sample_img, sample_label, ax=None):
     if ax is None:
         plt.figure(figsize=(3, 3))
         plt.imshow(sample_img, cmap='gray')
-        plt.title(f"Label: {sample_label}")
+        plt.title(sample_label)
         plt.axis('off')
         plt.show()
     else:
