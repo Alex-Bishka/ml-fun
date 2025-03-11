@@ -1,5 +1,7 @@
 # Overview
 
+Ideally we want to keep the same program (statistically speaking), but provide a stack trace.
+
 ## NNs
 
 - we can make NNs more interpretable at intermediate layers (see deep supervision)
@@ -8,11 +10,14 @@
 - we have two tests for deep supervision:
   1. intermediate layers learning edge detection (horizontal/vertical edges of digits as subfeatures)
   2. hierarchal intermediate layers learning key subfeatures in each corner of an image divided in fourth, and then key subfeatures in the top/bottom half (the next layer)
+    - more hierarchal subfeatures might not necesarily be good, but also argument that the first layer 16->4->2 subfeatures has a lot of waste/crap in it...
 - we have some evidence that these features are better than random
   - this is mixed and it seems to depend on the original seed used to create the noisy subfeatures (can hit better subfeature learning via noise)
 - we have some evidence that learning the human subfeatures makes the model more human like
   - see our final summed activations (the subfeature influenced networks all seem to be less confident on classifying random noise images as digits)
 - performance from our deep supervision has minor-to-negligible performance loss to the identical network that does not utilize the auxilary loss from deep supervision
+- we can beat baseline performance - how can we do it consistently???
+  - we were able to do so on two layer sub features, but only on the final layer...
 
 While not deep supervision:
 - we have shown that an NN can solve for both the local minima and constraints place on intermediate features
@@ -25,11 +30,14 @@ What we need to do:
   - the 784 layer "nodes" are great for visualizations, but not practical... at all!
   - can use the 16 nodes layers (3blue1brown's design) and utilize the 16 nodes to encode subfeatures at each layer
 - explore alternative subfeatures
-  - does it matter how we combine our fundamental subfeatures in intermedate layers
-  - also just more layers to our hierarchy... a good simple next jump could be 16->4->2->classify
+  - [] does it matter how we combine our fundamental subfeatures in intermedate layers
+  - [x] also just more layers to our hierarchy... a good simple next jump could be 16->4->2->classify
 - explore what point of subfeatures is more important
   - i.e. if we blot out/leave some layers alone, which layers would be more beneficial to affect?
   - do we need every layer to have subfeatures/be interpretable?
+- want to dot products w/inputs and averages to see how useful averages are
+  - will need to normalize for intensity
+- weight sub directions 
 
 ## CNNs
 
