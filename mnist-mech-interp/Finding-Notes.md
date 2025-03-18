@@ -4,6 +4,7 @@ Ideally we want to keep the same program (statistically speaking), but provide a
 
 ## NNs
 
+**Findings:**
 - we can make NNs more interpretable at intermediate layers (see deep supervision)
   - use auxilary loss at intermediate layers to guide them to more human interpretable features
   - this, ideally, makes the NN more interpretable to us, and makes it act in a more intuitive manner 
@@ -18,11 +19,12 @@ Ideally we want to keep the same program (statistically speaking), but provide a
 - performance from our deep supervision has minor-to-negligible performance loss to the identical network that does not utilize the auxilary loss from deep supervision
 - we can beat baseline performance - how can we do it consistently???
   - we were able to do so on two layer sub features, but only on the final layer...
+- decay on the loss factor can improve performance, while also maintaining some amount of interpretability
 
-While not deep supervision:
+**While not deep supervision:**
 - we have shown that an NN can solve for both the local minima and constraints place on intermediate features
 
-What we need to do:
+**What we need to do:**
 - better visuals for our 4->2->classify architecture
 - more exploration of random subfeature starting states
   - getting a good sample here could be interesting for determining the importance of our network
