@@ -90,7 +90,7 @@ def plot_losses(loss_one, loss_two, label_one, label_two):
     plt.show()
 
 
-def plot_saliency_map(img_idx, feature_idx, classifier, sae, dataset, hidden_size, device, use_hidden_one=True):
+def plot_saliency_map(img_idx, feature_idx, classifier, sae, dataset, hidden_size, device, use_hidden_one=True, alpha=0.6):
     # idx of 3 is digit 0
     image, label = dataset[img_idx]  # Example image
     image = image.to(device).unsqueeze(0)  # Add batch dimension
