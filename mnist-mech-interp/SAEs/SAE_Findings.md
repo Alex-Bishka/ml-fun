@@ -22,6 +22,8 @@ Some options:
  3. Inject locality or Edge Priors (edge detectors of convolutions before applying the SAE - hope is we recognize lines and arcs)
  4. Contrastive Learning on Activations before SAE (forces digits to cluster and SAE will liklely learn less junk codes)
  5. Flip the script - define interpretible features first and then suprvise hidden activations to match them, and see if the SAE learns a clearer basis
+     - Could we even use SAEs during training to see if we are learning in the "right" direction?
+     - Potentially a defilbrilator to our gradients/hidden activation vectors?
 
 ### Direction 2: Explore Interpretability Techniques to Understand SAE Outputs
 
@@ -36,4 +38,4 @@ Some options:
 
 I really think idea 2.1 is strong for our experiments, as it can verify the SAE's learnings. Additionally, I really like 1.5, because it could serve as an automated way of deciding whether or not an "arbitrary" set of human interpretable sub features **IS ACTUALLY USEFUL**. These might be the first two routes I take, but particularly 2.1 for validation on current (and future) experiments.
 
-Another potential route to explore: feature attribution with gradient clipping and feature inversion with regualrization
+Another potential route to explore: feature attribution with gradient clipping (**in our case makes little difference** - gradients are not exploding) and feature inversion with regualrization (**also not helping our current case**).
