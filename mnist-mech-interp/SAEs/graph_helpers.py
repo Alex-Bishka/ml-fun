@@ -90,7 +90,7 @@ def plot_losses(loss_one, loss_two, label_one, label_two):
     plt.show()
 
 
-def plot_saliency_map(img_idx, feature_idx, classifier, sae, dataset, hidden_size, device, use_hidden_one=True, alpha=0.6):
+def plot_saliency_map(img_idx, feature_idx, classifier, sae, dataset, hidden_size, device, use_hidden_one=True, alpha=0.6, gradient_clipping=False):
     # idx of 3 is digit 0
     image, label = dataset[img_idx]  # Example image
     image = image.to(device).unsqueeze(0)  # Add batch dimension
@@ -110,12 +110,17 @@ def plot_saliency_map(img_idx, feature_idx, classifier, sae, dataset, hidden_siz
 
     target_feature = encoded[0, feature_idx]
     target_feature.backward()
+
+    # Clip gradients
+    if gradient_clipping:
+        max_grad_norm = 1.0  # Adjustable parameter
+        torch.nn.utils.clip_grad_norm_([image], max_grad_norm)
     
     # Get the saliency map (absolute gradients)
     saliency = torch.abs(image.grad.data).cpu().numpy().squeeze()
     
     # Normalize for better visualization
-    saliency = (saliency - saliency.min()) / (saliency.max() - saliency.min())
+    saliency = (saliency - saliency.min()) / (saliency.max() - saliency.min() + 1e-8)
 
     # Prepare original image for overlay
     original_img = image.detach().cpu().numpy().squeeze()
