@@ -1,7 +1,11 @@
 import os
 import torch
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+
+from sklearn.metrics import adjusted_rand_score, silhouette_score
+import plotly.express as px
 
 # Graphing code to visualize weights
 def plot_weights(model, epoch, experiment_type, run_id, save_plt=False):
@@ -254,3 +258,156 @@ def plot_activations(hidden_one_act, hidden_two_act, classification_out, label, 
         plt.close()
     else:
         plt.show()
+
+
+def feature_inversion(sae, model, start=5, end=75, skip=7, device="cuda", use_hidden_one=True, 
+                      num_steps=2000, l2_lambda=0.01, max_grad_norm=1.0, sparsity_penalty=0.01, intensity_constraint=0.5):
+    for feature_idx in range(start, end, skip):
+        image = torch.randn(1, 1, 28, 28, device=device, requires_grad=True)
+        sparse_optimizer = torch.optim.Adam([image], lr=0.005)
+        
+        for _ in range(num_steps):  # Iterate to optimize
+            model.zero_grad()
+            sae.zero_grad()
+            _, hidden_one_act, hidden_two_act = model(image)
+
+            if use_hidden_one:
+                _, encoded = sae(hidden_one_act)
+            else:
+                _, encoded = sae(hidden_two_act)
+            
+            target_activation = encoded[0, feature_idx]
+            other_activations = encoded[0, [i for i in range(encoded.size(1)) if i != feature_idx]]
+            
+            loss = -target_activation + l2_lambda * torch.norm(image, p=2) + sparsity_penalty * torch.mean(torch.abs(other_activations)) + 10.0 * (torch.mean(image) - intensity_constraint) ** 2 # Maximize the feature w/L2 reg
+            loss.backward()
+            
+            torch.nn.utils.clip_grad_norm_([image], max_grad_norm)  # Clip gradients
+            sparse_optimizer.step()
+        
+            image.data = torch.clamp(image.data, 0, 1)
+        
+        # Get the final encoding
+        with torch.no_grad():
+            _, hidden_one_act_final, hidden_two_act_final = model(image)
+            if use_hidden_one:
+                _, encoded_final = sae(hidden_one_act_final)
+            else:
+                _, encoded_final = sae(hidden_two_act_final)
+        
+        plt.figure(figsize=(6, 20))
+        
+        # Visualize the generated image
+        plt.subplot(1, 2, 1)
+        plt.imshow(image.detach().cpu().numpy().squeeze(), cmap='gray')
+        plt.title(f"Image Maximizing Feature {feature_idx}")
+        plt.axis('off')
+        plt.show()
+        
+        # Visualize the encoding as a bar graph
+        plt.subplot(2, 1, 1)
+        feature_activations = encoded_final[0].cpu().numpy()
+        plt.bar(range(len(feature_activations)), feature_activations, color='skyblue')
+        plt.axvline(x=feature_idx, color='red', linestyle='--', label=f'Feature {feature_idx}')
+        plt.title(f"Encoding Activations (Target: Feature {feature_idx})")
+        plt.xlabel("Feature Index")
+        plt.ylabel("Activation Value")
+        plt.legend()
+        plt.xticks(range(0, len(feature_activations), 10))  # Show every 10th tick for clarity
+        plt.tight_layout()
+        plt.show()
+    
+        target_activation = feature_activations[feature_idx]
+        max_activation_idx = np.argmax(feature_activations)
+        max_activation_value = feature_activations[max_activation_idx]
+        max_other_activation = np.max(np.delete(feature_activations, feature_idx))
+        print(f"Target Feature {feature_idx} Activation: {target_activation:.4f}")
+        print(f"Max Other Feature Activation: {max_other_activation:.4f}")
+        print(f"Highest Activation: Feature {max_activation_idx} with value {max_activation_value:.4f}")
+
+
+def SNE_plot_2d(activations_2d, labels, cluster_labels, hidden_activations_one=None):
+    fig = px.scatter(
+        x=activations_2d[:, 0],
+        y=activations_2d[:, 1],
+        color=labels.astype(str),  # Color by true digit labels
+        symbol=cluster_labels.astype(str),  # Different symbols for clusters
+        labels={'color': 'Digit', 'symbol': 'Cluster'},
+        title='t-SNE of Hidden Layer 1 Activations with K-Means Clustering',
+        hover_data={'Digit': labels, 'Cluster': cluster_labels}
+    )
+    
+    fig.update_layout(
+        xaxis_title='t-SNE Dimension 1',
+        yaxis_title='t-SNE Dimension 2',
+        showlegend=True,
+        coloraxis_colorbar_title='Digit',
+        width=1200,
+        height=1200
+    )
+    
+    fig.show()
+
+    if hidden_activations_one:
+        ari = adjusted_rand_score(labels, cluster_labels)
+        silhouette = silhouette_score(hidden_activations_one, cluster_labels)
+        print(f"Adjusted Rand Index: {ari}")
+        print(f"Silhouette Score: {silhouette}")
+
+
+def SNE_plot_3d(activations_3d, labels, max_feature_indices_sp_one):
+    fig = px.scatter_3d(
+        x=activations_3d[:, 0],
+        y=activations_3d[:, 1],
+        z=activations_3d[:, 2],
+        color=labels.astype(str),  # Color by true digit labels
+        symbol=max_feature_indices_sp_one.astype(str),  # Symbols by max sparse feature
+        labels={'color': 'Digit', 'symbol': 'Max Sparse Feature'},
+        title='3D t-SNE of SAE Activations (Clustered by Maximally Active Feature)',
+        hover_data={'Digit': labels, 'Max Sparse Feature': max_feature_indices_sp_one}
+    )
+    
+    
+    fig.update_layout(
+        scene=dict(
+            xaxis_title='t-SNE Dimension 1',
+            yaxis_title='t-SNE Dimension 2',
+            zaxis_title='t-SNE Dimension 3',
+        ),
+        showlegend=True,
+        coloraxis_colorbar_title='Digit',
+        width=1200,
+        height=1200
+    )
+    
+    fig.show()
+
+
+def plot_sparse_features(encoding, idx, digit_label, hidden_dims):
+    data = pd.DataFrame({
+        'Feature Index': range(hidden_dims),
+        'Activation': encoding,
+        'Color': ['Highlight' if i in [78, 121] else 'Default' for i in range(hidden_dims)]
+    })
+    
+    fig = px.bar(
+        data,
+        x='Feature Index',
+        y='Activation',
+        color='Color',
+        color_discrete_map={'Default': 'blue', 'Highlight': 'red'},
+        title=f'Sparse Feature Activations for Image Index {idx} (Digit {digit_label})',
+        hover_data={'Feature Index': True, 'Activation': ':.4f'}
+    )
+    
+    fig.update_layout(
+        xaxis_title='Feature Index',
+        yaxis_title='Activation Magnitude',
+        showlegend=True,
+        width=1000,
+        height=600,
+        xaxis=dict(tickmode='linear', dtick=10),  # Show more x-axis ticks
+        yaxis=dict(range=[0, max(encoding.max(), 1.0)]),  # Adjust y-axis range
+    )
+    
+    fig.show()
