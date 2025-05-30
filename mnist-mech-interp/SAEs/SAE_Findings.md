@@ -39,3 +39,5 @@ Some options:
 I really think idea 2.1 is strong for our experiments, as it can verify the SAE's learnings. Additionally, I really like 1.5, because it could serve as an automated way of deciding whether or not an "arbitrary" set of human interpretable sub features **IS ACTUALLY USEFUL**. These might be the first two routes I take, but particularly 2.1 for validation on current (and future) experiments.
 
 Another potential route to explore: feature attribution with gradient clipping (**in our case makes little difference** - gradients are not exploding) and feature inversion with regualrization (**also not helping our current case**).
+
+Find unique sparse subfeatures by digit - this might be the golden ticket? At least with current 7 hell exploration.
