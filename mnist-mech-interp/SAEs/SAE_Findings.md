@@ -41,3 +41,11 @@ I really think idea 2.1 is strong for our experiments, as it can verify the SAE'
 Another potential route to explore: feature attribution with gradient clipping (**in our case makes little difference** - gradients are not exploding) and feature inversion with regualrization (**also not helping our current case**).
 
 Find unique sparse subfeatures by digit - this might be the golden ticket? At least with current 7 hell exploration.
+
+
+
+TL;DR: I created a weekly newsletter that provides summaries on AI/ML papers on arXiv. The selection of papers and their summaries are automatically generated. It's free to use! You can try Mind The Abstract here.
+Long:
+I've been working on ML projects for the past couple of years now (hobby and at work). One thing I found difficult was to determine what to read on arXiv. So, for fun/to help orient myself better week-to-week, I created a newsletter with the goal of providing useful, approachable summaries for interesting papers in the past week. 
+The scope is primarily limited to AI/ML related categories from arXiv at the moment, but if the project gains traction I hope to expand the categories for summary. Additionally, if it is well received I may expand the project to take on more of an arXiv sanity feel. Overall, my hope is that it can provide some interesting and adjacently related papers/topics to your current area of research.
+I'm still very much in beta, but I've received feedback from close friends, so at this point I would love to get feedback on the newsletter/website from a larger audience!
