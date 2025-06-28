@@ -7,6 +7,13 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 import plotly.express as px
 
+import pickle
+def load_intermediate_labels(file_path):
+    with open(file_path, "rb") as f:
+        labels = pickle.load(f)
+
+    return labels
+    
 # Graphing code to visualize weights
 def plot_weights(model, epoch, experiment_type, run_id, save_plt=False):
     save_path_hidden_one = f'./weights/{experiment_type}/{run_id}/hidden_one/hidden_one_weights_{epoch + 1}.png'
