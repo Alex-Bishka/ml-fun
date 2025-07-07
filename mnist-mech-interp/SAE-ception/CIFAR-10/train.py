@@ -196,7 +196,7 @@ for epoch in range(num_epochs):
     avg_val_loss = val_loss / len(val_loader)
     val_accuracy = 100 * correct / total
     print(f"✅ End of Epoch {epoch+1}: Validation Loss: {avg_val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%")
-    print(f"SAE first loss: {sae_first_loss:.4f}, SAE middle loss: {sae_middle_loss:.4f}, SAE last loss: {sae_last_loss:.4f}")
+    print(f"SAE first loss: {avg_sae_first:.4f}, SAE middle loss: {avg_sae_middle:.4f}, SAE last loss: {avg_sae_middle:.4f}")
 
     # -- Save the Best Model --
     if val_accuracy > best_val_accuracy:
