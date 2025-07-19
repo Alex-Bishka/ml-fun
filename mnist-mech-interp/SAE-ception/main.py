@@ -1,6 +1,5 @@
-# Saving this for later
-# probably the closest settings we have to mimicing
-# the 99.5% accuracy on ViT-H
+import os
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 import torch
 from torchvision import datasets, transforms
@@ -13,11 +12,11 @@ from helpers.helpers import set_seed
 
 # --- 0. For Reproducibility ---
 set_seed(42)
-BATCH_SIZE = 8
+BATCH_SIZE = 64
 IMG_RES = 384
-GRAD_ACCUM_STEPS = 64  # Optional: Accumulate gradients over 2 steps to reduce memory
+GRAD_ACCUM_STEPS = 8
 TOTAL_STEPS = 10000
-BASE_LR = 0.01
+BASE_LR = 0.001
 
 # --- 1. Model and Device Setup ---
 weights = ViT_H_14_Weights.IMAGENET1K_SWAG_LINEAR_V1
@@ -98,7 +97,7 @@ scheduler = CosineAnnealingLR(optimizer, T_max=TOTAL_STEPS, eta_min=0)
 
 # --- 4. The Fine-Tuning and Validation Loop ---
 best_val_accuracy = 0.0
-MODEL_SAVE_PATH = 'temp.pth'
+MODEL_SAVE_PATH = 'best_classifier.pth'
 
 print("🚀 Starting fine-tuning...")
 for epoch in range(NUM_EPOCHS):
@@ -142,7 +141,7 @@ for epoch in range(NUM_EPOCHS):
     with torch.no_grad():
         for images, labels in val_loader:
             images, labels = images.to(device), labels.to(device)
-            with torch.amp.autocast("cuda"):  # Mixed precision for validation
+            with torch.amp.autocast('cuda'):  # Mixed precision for validation
                 outputs = model(images)
                 loss = criterion(outputs, labels)
             val_loss += loss.item()
