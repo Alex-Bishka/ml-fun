@@ -5,29 +5,26 @@ import torch
 from torchvision import datasets, transforms
 from torchvision.models import vit_h_14, ViT_H_14_Weights
 from torch.utils.data import DataLoader
+import timm.data
 
 
 from helpers.dataset import ActivationDataset
 from helpers.helpers import set_seed, load_intermediate_labels
-from helpers.sae import SparseAutoencoder
 
 
 #  --- 0. For reproducibility ---
-# BATCH_SIZE = 16
-# ACCUMULATION_STEPS = 32
-BATCH_SIZE = 32
-ACCUMULATION_STEPS = 16
+BATCH_SIZE = 64
+ACCUMULATION_STEPS = 8
 IMG_RES = 384
-NUM_EPOCHS = 5     # will want to change this to like 5, best val result is there
+NUM_EPOCHS = 1
 FEATURE_DIM = 1280
 MODEL_LOAD_PATH = './classifiers/baseline/vit_h_99.37.pth'
-SAE_LOAD_PATH = "./sae_models/baseline/sae_last_layer_l1_0.0001.pth"
 RECON_ACT_BASE_PATH = "./features/classifier-99.37"
 
 # Tuning for loss factor
 min_loss = 0.01
-max_loss = 0.30
-step = 0.01
+max_loss = 0.51
+step = 0.05
 loss_factors = np.arange(min_loss, round(max_loss + step, 3), step)
 print(len(loss_factors))
 print(loss_factors)
@@ -42,6 +39,54 @@ for N, sparse_type in [(25, "top")]:
     recon_act_path = f"{RECON_ACT_BASE_PATH}/{N}_{sparse_type}.pkl"
     recon_act_raw = load_intermediate_labels(recon_act_path)
 
+    ######################################################################################################
+    # DATA INIT
+    ######################################################################################################
+    seed = 42
+    generator = torch.Generator().manual_seed(seed)
+
+    train_transform = transforms.Compose([
+        transforms.Resize((IMG_RES, IMG_RES)),
+        transforms.TrivialAugmentWide(),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    eval_transform = transforms.Compose([
+        transforms.Resize((IMG_RES, IMG_RES)),  # Ensure 384x384 for validation
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    full_train_dataset = datasets.CIFAR10(root='./data', train=True, download=True, transform=train_transform)
+    val_dataset_for_split = datasets.CIFAR10(root='./data', train=True, download=True, transform=eval_transform)
+
+    num_train = len(full_train_dataset)
+    split = int(0.9 * num_train)
+    indices = torch.randperm(num_train, generator=generator).tolist()
+
+    train_subset = torch.utils.data.Subset(full_train_dataset, indices[:split])
+    val_subset = torch.utils.data.Subset(val_dataset_for_split, indices[split:])
+
+    train_dataset_with_activations = ActivationDataset(train_subset, recon_act_raw)
+
+    train_loader = DataLoader(train_dataset_with_activations, batch_size=BATCH_SIZE,
+                    shuffle=True, generator=generator, num_workers=4, pin_memory=True)
+    val_loader = DataLoader(val_subset, batch_size=BATCH_SIZE,
+                    shuffle=False, generator=generator, num_workers=4, pin_memory=True)
+
+    mixup = timm.data.Mixup(
+        mixup_alpha=1.0,  # Strength of MixUp
+        cutmix_alpha=0.0,  # Disable CutMix (set to 1.0 if you want to include it)
+        num_classes=10,
+        prob=1.0,  # Apply MixUp to all batches
+        label_smoothing=0.1,  # Optional: adds label smoothing
+    )
+
+    # Create the test DataLoader
+    test_dataset = datasets.CIFAR10(root='./data', train=False, download=True, transform=eval_transform)
+    test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False,
+                    pin_memory=True, num_workers=4)
+
     loss_data_dict = {}
     for loss_factor in loss_factors:
         print("#" * 50)
@@ -53,44 +98,11 @@ for N, sparse_type in [(25, "top")]:
         set_seed(42)
         # weights = ViT_H_14_Weights.IMAGENET1K_SWAG_LINEAR_V1
         weights = ViT_H_14_Weights.IMAGENET1K_SWAG_E2E_V1
-        model = vit_h_14(weights=weights) 
-
-
-        # Update model's image size and positional embeddings
-        model.image_size = IMG_RES  # Update the expected image size
-        patch_size = model.patch_size  # Should be 14 for vit_h_14
-        num_patches = (IMG_RES // patch_size) ** 2  # 729 for 384x384 with 14x14 patches
-
-        # Interpolate positional embeddings
-        orig_pos_embed = model.encoder.pos_embedding  # Shape: [1, 257, 1280] (257 = 1 cls token + 256 patches)
-        print(f"Original pos_embed shape: {orig_pos_embed.shape}")
-
-        # Extract the embedding dimension
-        embed_dim = orig_pos_embed.shape[-1]  # 1280
-        num_orig_patches = orig_pos_embed.shape[1] - 1  # 1369 patches (exclude class token)
-        orig_grid_size = int(num_orig_patches ** 0.5)  # 37 for 1369 patches (37x37 grid)
-        new_grid_size = int(num_patches ** 0.5)  # 27 for 729 patches (27x27 grid)
-
-        # Extract the positional embeddings (excluding class token)
-        pos_embed = orig_pos_embed[:, 1:, :]  # Shape: [1, 1369, 1280]
-        pos_embed = pos_embed.reshape(1, orig_grid_size, orig_grid_size, embed_dim)  # Reshape to [1, 37, 37, 1280]
-
-        # Interpolate to new grid size
-        pos_embed = torch.nn.functional.interpolate(
-            pos_embed.permute(0, 3, 1, 2),  # [1, 1280, 37, 37]
-            size=(new_grid_size, new_grid_size),  # Interpolate to [1, 1280, 27, 27]
-            mode='bilinear',
-            align_corners=False
-        )
-        pos_embed = pos_embed.permute(0, 2, 3, 1).reshape(1, num_patches, embed_dim)  # [1, 729, 1280]
-
-        # Combine with class token embedding
-        cls_token_embed = orig_pos_embed[:, :1, :]  # [1, 1, 1280]
-        new_pos_embed = torch.cat([cls_token_embed, pos_embed], dim=1)  # [1, 730, 1280]
+        model = vit_h_14(weights=None) 
+        model.image_size = IMG_RES
 
         # Update model's positional embeddings
-        model.encoder.pos_embedding = torch.nn.Parameter(new_pos_embed)
-
+        model.encoder.pos_embedding = torch.nn.Parameter(torch.load('./embeds/new_pos_embed_384_heavy.pth'))
 
         num_ftrs = model.heads.head.in_features
         model.heads.head = torch.nn.Linear(num_ftrs, 10)
@@ -121,45 +133,16 @@ for N, sparse_type in [(25, "top")]:
         for param in model.encoder.parameters():
             param.requires_grad = True
 
-        sae = SparseAutoencoder(input_dim=FEATURE_DIM).to(device)
-        sae.load_state_dict(torch.load(SAE_LOAD_PATH))
-
-        optimizer = torch.optim.SGD(model.encoder.parameters(), lr=1e-3, momentum=0.9, weight_decay=0.01)
+        # close with 1e-4 and 0.05 | 5e-5 and 0.1 is eh | 1e-4 and .15 is eh
+        optimizer = torch.optim.SGD(model.encoder.parameters(), lr=1e-4, momentum=0.9, weight_decay=0.1)
+        # optimizer = torch.optim.AdamW(model.encoder.parameters(), lr=1e-4, weight_decay=0.01)
         criterion = torch.nn.CrossEntropyLoss()
-        feature_loss_fn = torch.nn.CosineSimilarity()
-
-        ######################################################################################################
-        # DATA INIT
-        ######################################################################################################
-        seed = 42
-        generator = torch.Generator().manual_seed(seed)
-
-        train_transform = transforms.Compose([
-            transforms.Resize((IMG_RES, IMG_RES)),
-            transforms.TrivialAugmentWide(),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-        eval_transform = transforms.Compose([
-            transforms.Resize((IMG_RES, IMG_RES)),  # Ensure 384x384 for validation
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-
-        full_train_dataset = datasets.CIFAR10(root='./data', train=True, download=True, transform=train_transform)
-        val_dataset_for_split = datasets.CIFAR10(root='./data', train=True, download=True, transform=eval_transform)
-
-        num_train = len(full_train_dataset)
-        split = int(0.9 * num_train)
-        indices = torch.randperm(num_train, generator=generator).tolist()
-
-        train_subset = torch.utils.data.Subset(full_train_dataset, indices[:split])
-        val_subset = torch.utils.data.Subset(val_dataset_for_split, indices[split:])
-
-        train_dataset_with_activations = ActivationDataset(train_subset, recon_act_raw)
-
-        train_loader = DataLoader(train_dataset_with_activations, batch_size=BATCH_SIZE, shuffle=True, generator=generator)
-        val_loader = DataLoader(val_subset, batch_size=BATCH_SIZE, shuffle=False, generator=generator)
+        
+        def feature_loss_fn(a, b):
+            # a, b: [batch_size, feature_dim]
+            cos_sim = torch.nn.functional.cosine_similarity(a, b, dim=-1)
+            return (1 - cos_sim).mean()
+        # feature_loss_fn = torch.nn.CosineSimilarity()
 
         ######################################################################################################
         # TRAINING LOOP
@@ -169,28 +152,34 @@ for N, sparse_type in [(25, "top")]:
         for epoch in range(NUM_EPOCHS):
             # -- Training Phase --
             model.train()
-            sae.eval()
             running_loss = 0.0
             optimizer.zero_grad()
+            scaler = torch.amp.GradScaler('cuda')
 
             for i, (images, labels, recon_act) in enumerate(train_loader):
                 images, labels, recon_act = images.to(device), labels.to(device), recon_act.to(device)
-                outputs = model(images)
-                dense_activations = activations[layer_name]
+                images, labels = mixup(images, labels)
 
-                feature_loss = (1 - feature_loss_fn(dense_activations, recon_act)).mean()
+                with torch.amp.autocast('cuda'):
+                    outputs = model(images)
+                    dense_activations = activations[layer_name]
+                    feature_loss = (1 - feature_loss_fn(dense_activations, recon_act)).mean()
+                    loss = criterion(outputs, labels) + (loss_factor * feature_loss)
+                    loss = loss / ACCUMULATION_STEPS
 
-                loss = criterion(outputs, labels) + (loss_factor * feature_loss)
-                loss = loss / ACCUMULATION_STEPS
-                loss.backward()
+                scaler.scale(loss).backward()
 
                 if (i + 1) % ACCUMULATION_STEPS == 0 or (i + 1) == len(train_loader):
-                    optimizer.step()
+                    scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(model.encoder.parameters(), max_norm=1.0)
+
+                    scaler.step(optimizer)
+                    scaler.update()
                     optimizer.zero_grad()
 
                 running_loss += loss.item() * ACCUMULATION_STEPS
                 if (i + 1) % 100 == 0:
-                    print(f"  Epoch [{epoch+1}/{NUM_EPOCHS}], Batch [{i+1}/{len(train_loader)}], Loss: {running_loss / (100 / ACCUMULATION_STEPS):.4f}")
+                    print(f"  Epoch [{epoch+1}/{NUM_EPOCHS}], Batch [{i+1}/{len(train_loader)}], Loss: {running_loss / 100:.4f}")
                     running_loss = 0.0
 
             # -- Validation Phase --
@@ -199,8 +188,9 @@ for N, sparse_type in [(25, "top")]:
             with torch.no_grad(): # Disable gradient calculation for validation
                 for images, labels in val_loader:
                     images, labels = images.to(device), labels.to(device)
-                    outputs = model(images)
-                    loss = criterion(outputs, labels)
+                    with torch.amp.autocast('cuda'):  # Mixed precision for validation
+                        outputs = model(images)
+                        loss = criterion(outputs, labels)
                     val_loss += loss.item()
 
                     _, predicted = torch.max(outputs.data, 1)
@@ -232,17 +222,16 @@ for N, sparse_type in [(25, "top")]:
         model.to(device)
         model.eval()
 
-        # Create the test DataLoader
-        test_dataset = datasets.CIFAR10(root='./data', train=False, download=True, transform=eval_transform)
-        test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
-
         # Evaluate the model
         test_correct = 0
         test_total = 0
         with torch.no_grad():
             for images, labels in test_loader:
                 images, labels = images.to(device), labels.to(device)
-                outputs = model(images)
+
+                with torch.amp.autocast('cuda'):
+                    outputs = model(images)
+
                 _, predicted = torch.max(outputs.data, 1)
                 test_total += labels.size(0)
                 test_correct += (predicted == labels).sum().item()
