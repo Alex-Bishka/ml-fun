@@ -105,22 +105,22 @@ target_layers_config = {
     #     "dim": FEATURE_DIM,
     #     "L1": 5e-7
     # },
-    # "middle_layer": {
-    #     "layer": model.encoder.layers[15],
-    #     "dim": FEATURE_DIM,
-    #     "L1": 5e-5
-    # },
-    "last_layer": {
-        "layer": model.encoder,  # potentially want to also look at 'model.encoder.layers[-1]'
+    "middle_layer": {
+        "layer": model.encoder.layers[15],
         "dim": FEATURE_DIM,
-        "L1": 2e-4
-    }
+        "L1": 5e-5
+    },
+    # "last_layer": {
+    #     "layer": model.encoder,  # potentially want to also look at 'model.encoder.layers[-1]'
+    #     "dim": FEATURE_DIM,
+    #     "L1": 2e-4
+    # }
 }
 
 L1_config = {
     # "first_layer":  [5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8, 5e-9, 1e-9],
-    # "middle_layer": [5e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8],
-    "last_layer":   [5e-4, 4e-4, 3e-4, 2e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7]
+    "middle_layer": [5e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8],
+    # "last_layer":   [5e-4, 4e-4, 3e-4, 2e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7]
 }
 
 results_df = pd.DataFrame(columns=['layer_name', 'l1_penalty', 'accuracy', 'sparsity'])

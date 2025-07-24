@@ -7,27 +7,36 @@ from torchvision.models import vit_h_14, ViT_H_14_Weights
 from torch.utils.data import DataLoader
 import timm.data
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Run a hyperparameter experiment for the classifier.')
+parser.add_argument('--base_lr', type=float, required=True, help='The base learning rate for the model.')
+parser.add_argument('--base_decay', type=float, required=True, help='The base weight decay for the model.')
+args = parser.parse_args()
 
 from helpers.dataset import ActivationDataset
 from helpers.helpers import set_seed, load_intermediate_labels
 
 
 #  --- 0. For reproducibility ---
-BATCH_SIZE = 64
+BATCH_SIZE = 8
 ACCUMULATION_STEPS = 8
 IMG_RES = 384
 NUM_EPOCHS = 1
-FEATURE_DIM = 1280
 MODEL_LOAD_PATH = './classifiers/baseline/vit_h_99.37.pth'
 RECON_ACT_BASE_PATH = "./features/classifier-99.37"
+BASE_LR = args.base_lr
+BASE_DECAY = args.base_decay
 
 # Tuning for loss factor
-min_loss = 0.01
-max_loss = 0.51
-step = 0.05
-loss_factors = np.arange(min_loss, round(max_loss + step, 3), step)
+# min_loss = 0.01
+# max_loss = 0.51
+# step = 0.05
+# loss_factors = np.arange(min_loss, round(max_loss + step, 3), step)
+loss_factors = np.array([0.01, 0.1, 0.2, 0.3, 0.5, 1, 3])
 print(len(loss_factors))
 print(loss_factors)
+print(f"Base LR: {BASE_LR}  |  Base decay: {BASE_DECAY}")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -102,7 +111,7 @@ for N, sparse_type in [(25, "top")]:
         model.image_size = IMG_RES
 
         # Update model's positional embeddings
-        model.encoder.pos_embedding = torch.nn.Parameter(torch.load('./embeds/new_pos_embed_384_heavy.pth'))
+        model.encoder.pos_embedding = torch.nn.Parameter(torch.load('./embeds/pos_embed_linear_384_99.37.pth'))
 
         num_ftrs = model.heads.head.in_features
         model.heads.head = torch.nn.Linear(num_ftrs, 10)
@@ -134,7 +143,9 @@ for N, sparse_type in [(25, "top")]:
             param.requires_grad = True
 
         # close with 1e-4 and 0.05 | 5e-5 and 0.1 is eh | 1e-4 and .15 is eh
-        optimizer = torch.optim.SGD(model.encoder.parameters(), lr=1e-4, momentum=0.9, weight_decay=0.1)
+        # optimizer = torch.optim.SGD(model.encoder.parameters(), lr=1e-4, momentum=0.9, weight_decay=0.1)
+        
+        optimizer = torch.optim.SGD(model.encoder.parameters(), lr=BASE_LR, momentum=0.9, weight_decay=BASE_DECAY)
         # optimizer = torch.optim.AdamW(model.encoder.parameters(), lr=1e-4, weight_decay=0.01)
         criterion = torch.nn.CrossEntropyLoss()
         
@@ -204,7 +215,7 @@ for N, sparse_type in [(25, "top")]:
             # -- Save the Best Model --
             if val_accuracy > best_val_accuracy:
                 best_val_accuracy = val_accuracy
-                model_path = f'./saved_models/{N}_{sparse_type}/best_model_lf_{round(loss_factor, 3)}.pth'
+                model_path = f'./saved_models/{N}_{sparse_type}/lr-{BASE_LR}-decay-{BASE_DECAY}/best_model_lf_{round(loss_factor, 3)}.pth'
                 os.makedirs(os.path.dirname(model_path), exist_ok=True)
                 torch.save(model.state_dict(), model_path)
                 best_model_path = model_path
@@ -243,8 +254,9 @@ for N, sparse_type in [(25, "top")]:
         }
         print(f"\n🎉 Final Accuracy of the best model on the test set: {final_accuracy:.2f}%")
 
-    file_path = f"./loss_data_dict_{round(min_loss, 3)}_to_{round(loss_factors[-1], 3)}_{N}_{sparse_type}.pkl"
-    with open(file_path, "wb") as f:
+    data_dict_path = f"./hyperparams/lr-{BASE_LR}-decay-{BASE_DECAY}/loss_data_dict_{round(loss_factors[0], 3)}_to_{round(loss_factors[-1], 3)}_{N}_{sparse_type}.pkl"
+    os.makedirs(os.path.dirname(data_dict_path), exist_ok=True)
+    with open(data_dict_path, "wb") as f:
         pickle.dump(loss_data_dict, f)
 
     print(f"\nJust completed run for {N}-{sparse_type}!\n")
