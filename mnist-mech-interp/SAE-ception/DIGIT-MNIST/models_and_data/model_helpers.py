@@ -102,7 +102,7 @@ def get_sublabel_data(data_labels, data_images, feature_indices_dict, sparse_act
             recon = recon.view(1, -1)
     
             recon_ablated = sae_model.decoder(encoded_digit_torch_ablated)
-            recon_ablated = recon.view(1, -1)
+            recon_ablated = recon_ablated.view(1, -1)
     
             recon_max_sparse.append(recon.cpu().detach().clone())
             recon_max_sparse_ablated.append(recon_ablated.cpu().detach().clone())

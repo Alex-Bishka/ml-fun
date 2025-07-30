@@ -18,12 +18,13 @@ from models_and_data.model_helpers import (evaluate_and_gather_activations, get_
 # Parameters
 HIDDEN_SIZE = 256
 # F2
-best_model_path = "./SAE-Results/256-0.75/results/F2/models/25_top_0.14_25_top_0.06/25_top/best_model_lf_0.27.pth"
+# best_model_path = "./SAE-Results/256-0.75/results/F2/models/25_top_0.14_25_top_0.06/25_top/best_model_lf_0.27.pth"
 # best_model_path = "./SAE-Results/256-0.75/results/F2/models/25_top_0.14_25_top_0.06/25_top/best_model_lf_0.18.pth"
 
 # F1
 # best_model_path = "./SAE-Results/256-0.75/results/F1/models/25_top_0.14/25_top/best_model_lf_0.06.pth"
 # best_model_path = "./SAE-Results/256-0.75/results/F1/models/256_top_0.07/25_top/best_model_lf_0.08.pth"
+best_model_path = "./SAE-Results/256-0.75/results/F1/models/256_top_0.07/256_top/best_model_lf_0.04.pth"
 
 # F0
 # best_model_path = "./SAE-Results/256-0.75/results/F0/models/25_top/best_model_lf_0.14.pth"

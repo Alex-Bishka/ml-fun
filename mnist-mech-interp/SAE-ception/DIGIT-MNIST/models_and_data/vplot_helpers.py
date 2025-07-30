@@ -45,6 +45,8 @@ def plot_loss_factors(df):
         showlegend=True
     )
     
+    fig.write_json("temp.json")
+
     # Show the plot
     fig.show()
 
