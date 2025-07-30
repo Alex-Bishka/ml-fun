@@ -24,6 +24,8 @@ def plot_loss_factors(df):
         markers=True  # Add markers to the lines
     )
     
+    fig.write_json("temp.json")
+    
     # Show the plot
     fig.show()
 
