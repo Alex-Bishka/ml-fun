@@ -6,7 +6,7 @@ from tqdm import tqdm
 import plotly.express as px
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 
-def SNE_plot_2d(activations_2d, labels, cluster_labels, hidden_activations_one=None):
+def SNE_plot_2d(activations_2d, labels, cluster_labels, hidden_activations_one=None, width=1200, height=1200):
     fig = px.scatter(
         x=activations_2d[:, 0],
         y=activations_2d[:, 1],
@@ -22,10 +22,11 @@ def SNE_plot_2d(activations_2d, labels, cluster_labels, hidden_activations_one=N
         yaxis_title='t-SNE Dimension 2',
         showlegend=True,
         coloraxis_colorbar_title='Digit',
-        width=1200,
-        height=1200
+        width=width,
+        height=height
     )
     
+    fig.write_json("temp.json")
     fig.show()
 
     if hidden_activations_one:

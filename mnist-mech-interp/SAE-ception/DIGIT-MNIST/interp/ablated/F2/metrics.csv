@@ -1,0 +1,6 @@
+,Metric,Value
+0,Adjusted Rand Index (ARI),0.335
+1,Silhouette (Unsupervised),-0.037
+2,Silhouette (Supervised),0.193
+3,Davies-Bouldin Index,1.589
+4,Calinski-Harabasz Index,1378.028

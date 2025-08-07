@@ -353,6 +353,8 @@ def SNE_plot_2d(activations_2d, labels, cluster_labels, hidden_activations_one=N
         height=1200
     )
     
+    print("writing fig!")
+    fig.write_json("temp.json")
     fig.show()
 
     if hidden_activations_one:

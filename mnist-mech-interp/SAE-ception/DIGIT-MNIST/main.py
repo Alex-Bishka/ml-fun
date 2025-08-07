@@ -28,11 +28,15 @@ L1_PENALTY = 0.75
 # target features from iteration 2
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/25_top_0.14_25_top_0.06"
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/256_top_0.07_25_top_0.08"
-RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/256_top_0.07_256_top_0.04"
+# RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/256_top_0.07_256_top_0.04"
+# RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/25_mask_0.01_25_mask_0.06"
+RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/256_mask_0.29_256_mask_0.02"
 
 # target features from iteration 1
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F1/256_top_0.07"
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F1/25_top_0.14"
+# RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F1/25_mask_0.01"
+# RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F1/256_mask_0.29"
 
 # target features from classifier
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F0"
@@ -61,9 +65,10 @@ test_images = load_intermediate_labels("./intermediate-labels/first_layer/test_i
 test_labels = load_intermediate_labels("./intermediate-labels/first_layer/test_labels.pkl")
 
 # loop across all reconstruction targets
-for N in [25, 256]:
-    for sparse_type in ["top", "mask"]:
-    # for sparse_type in ["mask"]:
+# for N in [25, 256]:
+for N in [256]:
+    # for sparse_type in ["top", "mask"]:
+    for sparse_type in ["mask"]:
         print(f"\nStarting run for {N}-{sparse_type}!\n")
 
         recon_act_path = f"{RECON_ACT_BASE_PATH}/{N}_{sparse_type}.pkl"
@@ -208,7 +213,7 @@ for N in [25, 256]:
                 if val_accuracy > best_val_acc:
                     best_val_acc = val_accuracy
                     
-                    model_path = f'./models_saved_two/{N}_{sparse_type}/best_model_lf_{round(loss_factor, 3)}.pth'
+                    model_path = f'./models_saved/{N}_{sparse_type}/best_model_lf_{round(loss_factor, 3)}.pth'
                     os.makedirs(os.path.dirname(model_path), exist_ok=True)
                     # Save all three model states in one file
                     torch.save({
@@ -289,7 +294,7 @@ for N in [25, 256]:
             torch.cuda.empty_cache()
             print()
 
-        file_path = f"./two_loss_data_dict_{min_loss}_to_{round(loss_factors[-1], 3)}_{N}_{sparse_type}.pkl"
+        file_path = f"./loss_data_dict_{min_loss}_to_{round(loss_factors[-1], 3)}_{N}_{sparse_type}.pkl"
         with open(file_path, "wb") as f:
             pickle.dump(loss_data_dict, f)
 

@@ -24,11 +24,15 @@ HIDDEN_SIZE = 256
 # F1
 # best_model_path = "./SAE-Results/256-0.75/results/F1/models/25_top_0.14/25_top/best_model_lf_0.06.pth"
 # best_model_path = "./SAE-Results/256-0.75/results/F1/models/256_top_0.07/25_top/best_model_lf_0.08.pth"
-best_model_path = "./SAE-Results/256-0.75/results/F1/models/256_top_0.07/256_top/best_model_lf_0.04.pth"
+# best_model_path = "./SAE-Results/256-0.75/results/F1/models/256_top_0.07/256_top/best_model_lf_0.04.pth"
+# best_model_path = "./SAE-Results/256-0.75/results/F1/models/25_mask_0.01/25_mask/best_model_lf_0.06.pth"
+best_model_path = "./SAE-Results/256-0.75/results/F1/models/256_mask_0.29/256_mask/best_model_lf_0.02.pth"
 
 # F0
 # best_model_path = "./SAE-Results/256-0.75/results/F0/models/25_top/best_model_lf_0.14.pth"
 # best_model_path = "./SAE-Results/256-0.75/results/F0/models/256_top/best_model_lf_0.07.pth"
+# best_model_path = "./SAE-Results/256-0.75/results/F0/models/25_mask/best_model_lf_0.01.pth"
+# best_model_path = "./SAE-Results/256-0.75/results/F0/models/256_mask/best_model_lf_0.29.pth"
 
 # baseline
 # best_model_path = "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth"
