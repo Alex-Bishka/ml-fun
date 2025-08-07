@@ -13,8 +13,10 @@ from helpers.sae import SparseAutoencoder, train_sae_on_layer, evaluate_sae_with
 set_seed(42)
 BATCH_SIZE = 64
 SAE_EPOCHS = 5
-MODEL_SAVE_PATH = './classifiers/baseline/vit_h_99.56.pth'
-SAE_BASE_PATH = './sae_models/baseline-99.56'
+# MODEL_SAVE_PATH = './classifiers/baseline/vit_h_99.56.pth'
+# MODEL_SAVE_PATH = './classifiers/F0/vit_h_99.56_25_top_0.0002_99.41.pth'
+MODEL_SAVE_PATH = './classifiers/F1/best_model_lf_0.01.pth'  # 99.30% accuracy on this guy
+SAE_BASE_PATH = './sae_models/F1'
 IMG_RES = 384
 FEATURE_DIM = 1280
 
@@ -105,22 +107,23 @@ target_layers_config = {
     #     "dim": FEATURE_DIM,
     #     "L1": 5e-7
     # },
-    "middle_layer": {
-        "layer": model.encoder.layers[15],
-        "dim": FEATURE_DIM,
-        "L1": 5e-5
-    },
-    # "last_layer": {
-    #     "layer": model.encoder,  # potentially want to also look at 'model.encoder.layers[-1]'
+    # "middle_layer": {
+    #     "layer": model.encoder.layers[15],
     #     "dim": FEATURE_DIM,
-    #     "L1": 2e-4
-    # }
+    #     "L1": 5e-5
+    # },
+    "last_layer": {
+        "layer": model.encoder,  # potentially want to also look at 'model.encoder.layers[-1]'
+        "dim": FEATURE_DIM,
+        "L1": 2e-4
+    }
 }
 
 L1_config = {
     # "first_layer":  [5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8, 5e-9, 1e-9],
-    "middle_layer": [5e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8],
+    # "middle_layer": [5e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8],
     # "last_layer":   [5e-4, 4e-4, 3e-4, 2e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7]
+    "last_layer":   [2e-4]
 }
 
 results_df = pd.DataFrame(columns=['layer_name', 'l1_penalty', 'accuracy', 'sparsity'])

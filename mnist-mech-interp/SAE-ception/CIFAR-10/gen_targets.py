@@ -16,8 +16,10 @@ from helpers.helpers import set_seed, extract_activations, get_top_N_features, g
 set_seed(42)
 BATCH_SIZE = 64
 SAE_EPOCHS = 5
-MODEL_SAVE_PATH = './classifiers/baseline/vit_h_99.37.pth'
-SAE_MODEL_PATH = "./sae_models/baseline-99.37/sae_last_layer_l1_0.0001.pth"
+# MODEL_LOAD_PATH = './classifiers/baseline/vit_h_99.56.pth'
+MODEL_LOAD_PATH = './classifiers/F0/vit_h_99.56_25_top_0.0002_99.41.pth'
+# SAE_MODEL_PATH = "./sae_models/baseline-99.56/last_layer/sae_last_layer_l1_0.0002.pth"
+SAE_MODEL_PATH = "./sae_models/F0/sae_last_layer_l1_0.0002.pth"
 IMG_RES = 384
 FEATURE_DIM = 1280
 
@@ -27,40 +29,13 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("\n--- 1. Loading ViT Model and SAE Model ---")
 weights = ViT_H_14_Weights.IMAGENET1K_SWAG_LINEAR_V1
 model = vit_h_14(weights=weights) 
-
-
-# Update model's image size and positional embeddings
 model.image_size = IMG_RES  # Update the expected image size
-patch_size = model.patch_size  # Should be 14 for vit_h_14
-num_patches = (IMG_RES // patch_size) ** 2  # 729 for 384x384 with 14x14 patches
 
-# Interpolate positional embeddings
-orig_pos_embed = model.encoder.pos_embedding  # Shape: [1, 257, 1280] (257 = 1 cls token + 256 patches)
-new_num_patches = num_patches + 1  # +1 for the class token
-grid_size = int(num_patches ** 0.5)  # 27 for 729 patches
-
-# Extract the positional embeddings (excluding class token)
-pos_embed = orig_pos_embed[:, 1:, :]  # Shape: [1, 256, 1280]
-pos_embed = pos_embed.reshape(1, 16, 16, -1)  # Reshape to [1, 16, 16, 1280] (for 224x224)
-pos_embed = torch.nn.functional.interpolate(
-    pos_embed.permute(0, 3, 1, 2),  # [1, 1280, 16, 16]
-    size=(grid_size, grid_size),  # Interpolate to [1, 1280, 27, 27]
-    mode='bilinear',
-    align_corners=False
-)
-pos_embed = pos_embed.permute(0, 2, 3, 1).reshape(1, num_patches, -1)  # [1, 729, 1280]
-
-# Combine with class token embedding
-cls_token_embed = orig_pos_embed[:, :1, :]  # [1, 1, 1280]
-new_pos_embed = torch.cat([cls_token_embed, pos_embed], dim=1)  # [1, 730, 1280]
-
-# Update model's positional embeddings
-model.encoder.pos_embedding = torch.nn.Parameter(new_pos_embed)
-
+model.encoder.pos_embedding = torch.nn.Parameter(torch.load('./embeds/pos_embed_edge_384_99.56.pth'))
 
 num_ftrs = model.heads.head.in_features
 model.heads.head = torch.nn.Linear(num_ftrs, 10)
-model.load_state_dict(torch.load(MODEL_SAVE_PATH))
+model.load_state_dict(torch.load(MODEL_LOAD_PATH))
 model.to(device)
 
 sae = SparseAutoencoder(input_dim=FEATURE_DIM).to(device)
@@ -93,12 +68,13 @@ indices = torch.randperm(num_train, generator=generator).tolist()
 train_subset = torch.utils.data.Subset(full_train_dataset, indices[:split])
 val_subset = torch.utils.data.Subset(val_dataset_for_split, indices[split:])
 
-train_loader = DataLoader(train_subset, batch_size=BATCH_SIZE, shuffle=False)
-val_loader = DataLoader(val_subset, batch_size=BATCH_SIZE, shuffle=False)
+train_loader = DataLoader(train_subset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, pin_memory=True)
+val_loader = DataLoader(val_subset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, pin_memory=True)
 
 print(f"SAE training set size: {len(train_subset)}")
 print(f"SAE validation set size: {len(val_subset)}")
 
+print("\n--- 3. Extracting Activations ---")
 activation_data = extract_activations(
     data_loader=train_loader,
     model=model,
@@ -106,10 +82,11 @@ activation_data = extract_activations(
     device=device
 )
 
-sparse_vector_sizes = [25, 256]
+print("\n--- 4. Generating Aux Loss Targets ---")
+sparse_vector_sizes = [25, 5120]
 for N_recon in sparse_vector_sizes:
     labels = activation_data["labels"]
-    sparse_act_one = activation_data["sparse_one"]
+    sparse_act_one = activation_data["sparse"]
     avg_digit_encoding, top_n_features = get_top_N_features(N_recon, sparse_act_one, labels)
     
     feature_indices_dict = {}

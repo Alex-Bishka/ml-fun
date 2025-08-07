@@ -2,6 +2,31 @@ import torch
 import pickle
 import random
 import numpy as np
+import gc
+import plotly.express as px
+
+
+def SNE_plot_2d(activations_2d, labels, cluster_labels, width=1200, height=1200):
+    fig = px.scatter(
+        x=activations_2d[:, 0],
+        y=activations_2d[:, 1],
+        color=labels.astype(str),  # Color by true digit labels
+        symbol=cluster_labels.astype(str),  # Different symbols for clusters
+        labels={'color': 'Digit', 'symbol': 'Cluster'},
+        title='t-SNE of Hidden Layer 1 Activations with K-Means Clustering',
+        hover_data={'Digit': labels, 'Cluster': cluster_labels}
+    )
+    
+    fig.update_layout(
+        xaxis_title='t-SNE Dimension 1',
+        yaxis_title='t-SNE Dimension 2',
+        showlegend=True,
+        coloraxis_colorbar_title='Digit',
+        width=width,
+        height=height
+    )
+    
+    fig.write_json("temp.json")
 
 
 def load_intermediate_labels(file_path):
@@ -77,7 +102,7 @@ def get_top_N_features(N, sparse_act_one, labels):
     return avg_digit_encoding, top_n_features
     
 
-def extract_activations(data_loader, model, sae, device):
+def extract_activations(data_loader, model, sae, device, batches_per_chunk=64):
     """
     Extracts hidden, sparse, and reconstructed activations from a model and its SAEs.
 
@@ -97,56 +122,72 @@ def extract_activations(data_loader, model, sae, device):
     model.eval()
     sae.eval()
 
-    activations = {}
-    def get_activation_hook(name):
-        def hook(model, input, output):
-            if isinstance(output, tuple):
-                activation_tensor = output[0]
-            else:
-                activation_tensor = output
-            
-            if activation_tensor.dim() == 3:
-                activations[name] = activation_tensor[:, 0, :].detach()
-            else:
-                activations[name] = activation_tensor.detach()
-        return hook
+    chunk_hidden_tensors = []
+    chunk_sparse_tensors = []
+    chunk_recon_tensors = []
+    chunk_label_tensors = []
 
-    target_layer = model.encoder
-    layer_name = "last_layer"
-    hook = target_layer.register_forward_hook(get_activation_hook(layer_name))
+    final_hidden_chunks = []
+    final_sparse_chunks = []
+    final_recon_chunks = []
+    final_label_chunks = []
 
-    # Initialize lists to store activations and labels
-    hidden_activations_one = []
-    sparse_act_one = []
-    recon_act_one = []
-    all_labels = []
+    captured_activation = []
+    def hook_fn(model, input, output):
+        activation_tensor = output[0] if isinstance(output, tuple) else output
+        if activation_tensor.dim() == 3:
+            captured_activation.append(activation_tensor[:, 0, :].detach())
+        else:
+            captured_activation.append(activation_tensor.detach())
 
-    with torch.no_grad():
-        for images, labels in data_loader:
+    hook = model.encoder.register_forward_hook(hook_fn)
+
+    with torch.no_grad(), torch.amp.autocast('cuda'):
+        for i, (images, labels) in enumerate(data_loader):
             images = images.to(device)
-
-            # Forward pass through the main model
+            
+            captured_activation.clear()
             model(images)
+            dense_activations = captured_activation[0]
+            recon_act, sparse_act = sae(dense_activations)
 
-            dense_activations = activations[layer_name]
+            # Append tensors to the current chunk list (on GPU)
+            chunk_hidden_tensors.append(dense_activations)
+            chunk_sparse_tensors.append(sparse_act)
+            chunk_recon_tensors.append(recon_act)
+            chunk_label_tensors.append(labels) # Keep labels on CPU to save VRAM
 
-            # Forward pass through the sparse autoencoders
-            recon_one, encoding_one = sae(dense_activations)
+            # If the chunk is full (or it's the last batch)
+            if (i + 1) % batches_per_chunk == 0 or (i + 1) == len(data_loader):
+                # Concatenate the chunk on the GPU
+                hidden_chunk = torch.cat(chunk_hidden_tensors, dim=0)
+                sparse_chunk = torch.cat(chunk_sparse_tensors, dim=0)
+                recon_chunk = torch.cat(chunk_recon_tensors, dim=0)
+                label_chunk = torch.cat(chunk_label_tensors, dim=0)
 
-            # Append results to lists
-            hidden_activations_one.append(dense_activations.cpu().numpy())
-            sparse_act_one.append(encoding_one.cpu().numpy())
-            recon_act_one.append(recon_one.cpu().numpy())
-            all_labels.append(labels.cpu().numpy())
+                # Move the completed chunk to CPU and append
+                final_hidden_chunks.append(hidden_chunk.cpu())
+                final_sparse_chunks.append(sparse_chunk.cpu())
+                final_recon_chunks.append(recon_chunk.cpu())
+                final_label_chunks.append(label_chunk.cpu()) # Move labels to CPU now
+
+                # Clear the GPU lists to free VRAM for the next chunk
+                chunk_hidden_tensors.clear()
+                chunk_sparse_tensors.clear()
+                chunk_recon_tensors.clear()
+                chunk_label_tensors.clear()
+                
+                # Optional: Force Python's garbage collector and empty PyTorch's cache
+                gc.collect()
+                torch.cuda.empty_cache()
 
     hook.remove()
 
-    # Concatenate all batches and convert to numpy arrays
     results = {
-        'hidden_one': np.concatenate(hidden_activations_one, axis=0),
-        'sparse_one': np.concatenate(sparse_act_one, axis=0),
-        'recon_one': np.concatenate(recon_act_one, axis=0),
-        'labels': np.concatenate(all_labels, axis=0)
+        'hidden': torch.cat(final_hidden_chunks, dim=0).numpy(),
+        'sparse': torch.cat(final_sparse_chunks, dim=0).numpy(),
+        'recon': torch.cat(final_recon_chunks, dim=0).numpy(),
+        'labels': torch.cat(final_label_chunks, dim=0).numpy()
     }
 
     return results

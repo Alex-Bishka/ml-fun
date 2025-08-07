@@ -23,8 +23,9 @@ BATCH_SIZE = 8
 ACCUMULATION_STEPS = 8
 IMG_RES = 384
 NUM_EPOCHS = 1
-MODEL_LOAD_PATH = './classifiers/baseline/vit_h_99.37.pth'
-RECON_ACT_BASE_PATH = "./features/classifier-99.37"
+# MODEL_LOAD_PATH = './classifiers/baseline/vit_h_99.56.pth'
+MODEL_LOAD_PATH = './classifiers/F0/vit_h_99.56_25_top_0.0002_99.41.pth'
+RECON_ACT_BASE_PATH = "./features/classifier-99.56/F1"
 BASE_LR = args.base_lr
 BASE_DECAY = args.base_decay
 
