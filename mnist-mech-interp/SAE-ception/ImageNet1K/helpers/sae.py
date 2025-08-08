@@ -26,7 +26,7 @@ class SparseAutoencoder(nn.Module):
     #     return mse_loss + l1_loss
 
 
-def train_sae_on_layer(model, target_layer, layer_name, sae_input_dim, train_loader, device, sae_epochs, sae_l1_lambda, sae_save_path):
+def train_sae_on_layer(model, target_layer, layer_name, sae_input_dim, train_loader, val_loader, device, sae_epochs, sae_l1_lambda, sae_save_path, val_set_size):
     """
     Trains an SAE on the activations of a specific layer of the ViT model.
     """
@@ -91,6 +91,41 @@ def train_sae_on_layer(model, target_layer, layer_name, sae_input_dim, train_loa
             total_loss += loss.item()
             num_batches_processed += 1
 
+        # -- Validation Phase --
+        sae.eval()
+        total_val_loss = 0
+        total_val_nonzero_activations = 0
+        val_bar = tqdm(val_loader, desc=f"Epoch {epoch + 1}/{sae_epochs} [Val]", leave=False)
+        with torch.no_grad():
+            for images, _ in val_bar:
+                images = images.to(device)
+
+                model(images)
+                layer_activations = activations[layer_name]
+
+                # --- SAE Forward Pass ---
+                reconstructed, hidden = sae(layer_activations)
+                
+                # --- Calculate Metrics for this Batch ---
+                recon_loss = F.mse_loss(reconstructed, layer_activations)
+                l1_loss = torch.norm(hidden, 1, dim=1).mean()
+                loss = recon_loss + sae_l1_lambda * l1_loss
+                
+                # --- Accumulate Metrics ---
+                total_val_loss += loss.item()
+                total_val_nonzero_activations += torch.count_nonzero(hidden).item()
+
+        # --- Calculate and Log Average Metrics for the Epoch ---
+        avg_val_loss = total_val_loss / len(val_loader)
+        avg_l0_norm = total_val_nonzero_activations / val_set_size
+        avg_l0_norm_percent = (avg_l0_norm / sae.hidden_dim) * 100
+        print(f"  SAE Epoch [{epoch+1}/{sae_epochs}], Train Loss: {avg_train_loss:.6f}, Val Loss: {avg_val_loss:.6f}, Avg L0 Norm: {avg_l0_norm_percent:.2f}%")
+
+        # -- Save Best Model --
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            torch.save(sae.state_dict(), sae_save_path)
+            print(f"  ✨ New best SAE saved with validation loss: {avg_val_loss:.6f}")
         avg_train_loss = total_loss / num_batches_processed
 
         print(f"  SAE Epoch [{epoch+1}/{sae_epochs}], Train Loss: {avg_train_loss:.6f}%")
