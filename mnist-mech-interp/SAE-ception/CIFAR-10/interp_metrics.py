@@ -16,11 +16,17 @@ from helpers.helpers import extract_activations, SNE_plot_2d
 
 EMBEDS_PATH = './embeds/pos_embed_edge_384_99.56.pth'
 # VIT_PATH = './classifiers/baseline/vit_h_99.56.pth'
-# VIT_PATH = './classifiers/F0/vit_h_99.56_25_top_0.0002_99.41.pth'
-VIT_PATH = './classifiers/F1/best_model_lf_0.01.pth'
 # SAE_PATH = './sae_models/baseline-99.56/last_layer/sae_last_layer_l1_0.0002.pth'
+
+# VIT_PATH = './classifiers/F0/best_model_lf_0.01.pth'
 # SAE_PATH = './sae_models/F0/sae_last_layer_l1_0.0002.pth'
-SAE_PATH = './sae_models/F1/sae_last_layer_l1_0.0002.pth'
+
+# VIT_PATH = './classifiers/F1/best_model_lf_0.01.pth'
+# SAE_PATH = './sae_models/F1/sae_last_layer_l1_0.0002.pth'
+
+VIT_PATH = './classifiers/F2/best_model_lf_0.3.pth'
+SAE_PATH = './sae_models/F2/sae_last_layer_l1_0.0002.pth'
+
 IMG_RES = 384
 FEATURE_DIM = 1280
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -64,22 +70,32 @@ codes = activation_data['sparse']
 labels = activation_data['labels']
 
 H = codes.shape[1]
-cs_indices = np.zeros(H)
+mi_indices = np.zeros(H)
+csi_indices = np.zeros(H)
+
+unique_classes = np.unique(labels)
+num_classes = len(unique_classes)
 for j in range(H):
-    # binarize activation on atom j
     act_j = codes[:, j]
+
+    # normalized MI variant
     thr = np.percentile(act_j, 75)           # e.g. threshold at top 25%
     binarized = (act_j > thr).astype(int)
-
-    # mutual info between “atom-on/off” and class label
     mi = mutual_info_score(binarized, labels)
-
-    # normalize by entropy of the on/off signal
     p_on = binarized.mean()
     h_on = -(p_on*np.log2(p_on + 1e-12) + (1-p_on)*np.log2(1-p_on + 1e-12))
-    cs_indices[j] = mi / (h_on + 1e-12)
+    mi_indices[j] = mi / (h_on + 1e-12)
 
-print("Mean class-selectivity (normalized MI):", cs_indices.mean())
+    # standard CSI
+    class_means = np.array([np.mean(act_j[labels == c]) for c in unique_classes])
+    mu_max = np.max(class_means)
+    max_idx = np.argmax(class_means)
+    mu_other = np.mean(class_means[np.arange(num_classes) != max_idx]) if num_classes > 1 else 0
+    denominator = mu_max + mu_other
+    csi_indices[j] = (mu_max - mu_other) / denominator if denominator != 0 else 0
+
+print("Mean class-selectivity (normalized MI):", mi_indices.mean())
+print("Mean class-selectivity:", csi_indices.mean())
 print("#" * 60)
 
 
@@ -87,10 +103,17 @@ print("#" * 60)
 ############################################################
 # Baseline:
 # Mean class-selectivity (normalized MI): 0.05164640227130353
+# Mean class-selectivity: 0.23940951824188234
 ############################################################
 # F0:
-# Mean class-selectivity (normalized MI): 0.04432501377537306
+# Mean class-selectivity (normalized MI): 0.09875160927560153
+# Mean class-selectivity: 0.539653205871582
 ############################################################
 # F1:
-# Mean class-selectivity (normalized MI): 0.04956580502943177
+# Mean class-selectivity (normalized MI): 0.08628275009077747
+# Mean class-selectivity: 0.46204361915588377
+############################################################
+# F2:
+# Mean class-selectivity (normalized MI): 0.07739245038139937
+# Mean class-selectivity: 0.42982242107391355
 ############################################################

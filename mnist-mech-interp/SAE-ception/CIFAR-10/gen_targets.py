@@ -17,9 +17,14 @@ set_seed(42)
 BATCH_SIZE = 64
 SAE_EPOCHS = 5
 # MODEL_LOAD_PATH = './classifiers/baseline/vit_h_99.56.pth'
-MODEL_LOAD_PATH = './classifiers/F0/vit_h_99.56_25_top_0.0002_99.41.pth'
 # SAE_MODEL_PATH = "./sae_models/baseline-99.56/last_layer/sae_last_layer_l1_0.0002.pth"
-SAE_MODEL_PATH = "./sae_models/F0/sae_last_layer_l1_0.0002.pth"
+
+# MODEL_LOAD_PATH = './classifiers/F0/best_model_lf_0.01.pth'
+# SAE_MODEL_PATH = "./sae_models/F0/sae_last_layer_l1_0.0002.pth"
+
+MODEL_LOAD_PATH = './classifiers/F1/best_model_lf_0.01.pth'
+SAE_MODEL_PATH = "./sae_models/F1/sae_last_layer_l1_0.0002.pth"
+
 IMG_RES = 384
 FEATURE_DIM = 1280
 

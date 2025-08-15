@@ -13,10 +13,19 @@ from helpers.sae import SparseAutoencoder, train_sae_on_layer, evaluate_sae_with
 set_seed(42)
 BATCH_SIZE = 64
 SAE_EPOCHS = 5
-# MODEL_SAVE_PATH = './classifiers/baseline/vit_h_99.56.pth'
-# MODEL_SAVE_PATH = './classifiers/F0/vit_h_99.56_25_top_0.0002_99.41.pth'
-MODEL_SAVE_PATH = './classifiers/F1/best_model_lf_0.01.pth'  # 99.30% accuracy on this guy
-SAE_BASE_PATH = './sae_models/F1'
+
+# MODEL_LOAD_PATH = './classifiers/baseline/vit_h_99.56.pth'
+# SAE_BASE_PATH = './sae_models/F0'
+
+# MODEL_LOAD_PATH = './classifiers/F0/best_model_lf_0.01.pth'  # 99.47% accuracy on this guy
+# SAE_BASE_PATH = './sae_models/F0'
+
+# MODEL_LOAD_PATH = './classifiers/F1/best_model_lf_0.01.pth'  # 98.80% accuracy on this guy
+# SAE_BASE_PATH = './sae_models/F1'
+
+MODEL_LOAD_PATH = './classifiers/F2/best_model_lf_0.3.pth'  # 97.62% accuracy on this guy
+SAE_BASE_PATH = './sae_models/F2'
+
 IMG_RES = 384
 FEATURE_DIM = 1280
 
@@ -63,11 +72,11 @@ model.encoder.pos_embedding = torch.nn.Parameter(new_pos_embed)
 
 num_ftrs = model.heads.head.in_features
 model.heads.head = torch.nn.Linear(num_ftrs, 10)
-model.load_state_dict(torch.load(MODEL_SAVE_PATH))
+model.load_state_dict(torch.load(MODEL_LOAD_PATH))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 model.eval()
-print(f"Successfully loaded model from {MODEL_SAVE_PATH} to device: {device}")
+print(f"Successfully loaded model from {MODEL_LOAD_PATH} to device: {device}")
 
 
 print("\n--- 2. Preparing Data for SAE Training and Validation ---")

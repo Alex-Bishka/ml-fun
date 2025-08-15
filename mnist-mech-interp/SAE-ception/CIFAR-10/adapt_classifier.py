@@ -5,36 +5,38 @@ import torch
 from torchvision import datasets, transforms
 from torchvision.models import vit_h_14, ViT_H_14_Weights
 from torch.utils.data import DataLoader
-import timm.data
-
-import argparse
-
-parser = argparse.ArgumentParser(description='Run a hyperparameter experiment for the classifier.')
-parser.add_argument('--base_lr', type=float, required=True, help='The base learning rate for the model.')
-parser.add_argument('--base_decay', type=float, required=True, help='The base weight decay for the model.')
-args = parser.parse_args()
 
 from helpers.dataset import ActivationDataset
 from helpers.helpers import set_seed, load_intermediate_labels
 
+import time
+
+start = time.time()
 
 #  --- 0. For reproducibility ---
 BATCH_SIZE = 8
 ACCUMULATION_STEPS = 8
 IMG_RES = 384
-NUM_EPOCHS = 1
+NUM_EPOCHS = 3
+
 # MODEL_LOAD_PATH = './classifiers/baseline/vit_h_99.56.pth'
-MODEL_LOAD_PATH = './classifiers/F0/vit_h_99.56_25_top_0.0002_99.41.pth'
+# RECON_ACT_BASE_PATH = "./features/classifier-99.56/baseline"
+
+# MODEL_LOAD_PATH = './classifiers/F0/best_model_lf_0.01.pth'
+# RECON_ACT_BASE_PATH = "./features/classifier-99.56/F0"
+
+MODEL_LOAD_PATH = './classifiers/F1/best_model_lf_0.01.pth'
 RECON_ACT_BASE_PATH = "./features/classifier-99.56/F1"
-BASE_LR = args.base_lr
-BASE_DECAY = args.base_decay
+
+BASE_LR = 1e-4
+BASE_DECAY = 0.05
 
 # Tuning for loss factor
 # min_loss = 0.01
 # max_loss = 0.51
 # step = 0.05
 # loss_factors = np.arange(min_loss, round(max_loss + step, 3), step)
-loss_factors = np.array([0.01, 0.1, 0.2, 0.3, 0.5, 1, 3])
+loss_factors = np.array([0.01, 0.1, 0.2, 0.3, 0.5])
 print(len(loss_factors))
 print(loss_factors)
 print(f"Base LR: {BASE_LR}  |  Base decay: {BASE_DECAY}")
@@ -84,13 +86,13 @@ for N, sparse_type in [(25, "top")]:
     val_loader = DataLoader(val_subset, batch_size=BATCH_SIZE,
                     shuffle=False, generator=generator, num_workers=4, pin_memory=True)
 
-    mixup = timm.data.Mixup(
-        mixup_alpha=1.0,  # Strength of MixUp
-        cutmix_alpha=0.0,  # Disable CutMix (set to 1.0 if you want to include it)
-        num_classes=10,
-        prob=1.0,  # Apply MixUp to all batches
-        label_smoothing=0.1,  # Optional: adds label smoothing
-    )
+    # mixup = timm.data.Mixup(
+    #     mixup_alpha=1.0,  # Strength of MixUp
+    #     cutmix_alpha=0.0,  # Disable CutMix (set to 1.0 if you want to include it)
+    #     num_classes=10,
+    #     prob=1.0,  # Apply MixUp to all batches
+    #     label_smoothing=0.1,  # Optional: adds label smoothing
+    # )
 
     # Create the test DataLoader
     test_dataset = datasets.CIFAR10(root='./data', train=False, download=True, transform=eval_transform)
@@ -145,16 +147,14 @@ for N, sparse_type in [(25, "top")]:
 
         # close with 1e-4 and 0.05 | 5e-5 and 0.1 is eh | 1e-4 and .15 is eh
         # optimizer = torch.optim.SGD(model.encoder.parameters(), lr=1e-4, momentum=0.9, weight_decay=0.1)
-        
         optimizer = torch.optim.SGD(model.encoder.parameters(), lr=BASE_LR, momentum=0.9, weight_decay=BASE_DECAY)
-        # optimizer = torch.optim.AdamW(model.encoder.parameters(), lr=1e-4, weight_decay=0.01)
         criterion = torch.nn.CrossEntropyLoss()
+        scaler = torch.amp.GradScaler('cuda')
         
         def feature_loss_fn(a, b):
             # a, b: [batch_size, feature_dim]
             cos_sim = torch.nn.functional.cosine_similarity(a, b, dim=-1)
             return (1 - cos_sim).mean()
-        # feature_loss_fn = torch.nn.CosineSimilarity()
 
         ######################################################################################################
         # TRAINING LOOP
@@ -166,17 +166,18 @@ for N, sparse_type in [(25, "top")]:
             model.train()
             running_loss = 0.0
             optimizer.zero_grad()
-            scaler = torch.amp.GradScaler('cuda')
 
             for i, (images, labels, recon_act) in enumerate(train_loader):
                 images, labels, recon_act = images.to(device), labels.to(device), recon_act.to(device)
-                images, labels = mixup(images, labels)
 
                 with torch.amp.autocast('cuda'):
                     outputs = model(images)
                     dense_activations = activations[layer_name]
-                    feature_loss = (1 - feature_loss_fn(dense_activations, recon_act)).mean()
-                    loss = criterion(outputs, labels) + (loss_factor * feature_loss)
+
+                    class_loss = criterion(outputs, labels)
+                    feature_loss = feature_loss_fn(dense_activations, recon_act)
+
+                    loss = class_loss + (loss_factor * feature_loss)
                     loss = loss / ACCUMULATION_STEPS
 
                 scaler.scale(loss).backward()
@@ -255,9 +256,12 @@ for N, sparse_type in [(25, "top")]:
         }
         print(f"\n🎉 Final Accuracy of the best model on the test set: {final_accuracy:.2f}%")
 
-    data_dict_path = f"./hyperparams/lr-{BASE_LR}-decay-{BASE_DECAY}/loss_data_dict_{round(loss_factors[0], 3)}_to_{round(loss_factors[-1], 3)}_{N}_{sparse_type}.pkl"
+    data_dict_path = f"./saved_models/{N}_{sparse_type}/lr-{BASE_LR}-decay-{BASE_DECAY}/loss_data_dict_{round(loss_factors[0], 3)}_to_{round(loss_factors[-1], 3)}.pkl"
     os.makedirs(os.path.dirname(data_dict_path), exist_ok=True)
     with open(data_dict_path, "wb") as f:
         pickle.dump(loss_data_dict, f)
 
     print(f"\nJust completed run for {N}-{sparse_type}!\n")
+
+end = time.time()
+print(f"Time for run: {end - start}")

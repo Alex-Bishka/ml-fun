@@ -11,12 +11,19 @@ from helpers.sae import SparseAutoencoder
 from helpers.helpers import extract_activations, SNE_plot_2d
 
 EMBEDS_PATH = './embeds/pos_embed_edge_384_99.56.pth'
+
 # VIT_PATH = './classifiers/baseline/vit_h_99.56.pth'
-# VIT_PATH = './classifiers/F0/vit_h_99.56_25_top_0.0002_99.41.pth'
-VIT_PATH = './classifiers/F1/best_model_lf_0.01.pth'
 # SAE_PATH = './sae_models/baseline-99.56/last_layer/sae_last_layer_l1_0.0002.pth'
+
+# VIT_PATH = './classifiers/F0/best_model_lf_0.01.pth'
 # SAE_PATH = './sae_models/F0/sae_last_layer_l1_0.0002.pth'
-SAE_PATH = './sae_models/F1/sae_last_layer_l1_0.0002.pth'
+
+# VIT_PATH = './classifiers/F1/best_model_lf_0.01.pth'
+# SAE_PATH = './sae_models/F1/sae_last_layer_l1_0.0002.pth'
+
+VIT_PATH = './classifiers/F2/best_model_lf_0.3.pth'
+SAE_PATH = './sae_models/F2/sae_last_layer_l1_0.0002.pth'
+
 IMG_RES = 384
 FEATURE_DIM = 1280
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
