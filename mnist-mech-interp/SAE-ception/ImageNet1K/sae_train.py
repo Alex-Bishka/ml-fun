@@ -1,7 +1,8 @@
+import gc
 import os
 import pandas as pd
 import torch
-from torchvision import datasets, transforms
+from torchvision import transforms
 from torch.utils.data import DataLoader
 import timm
 from datasets import load_dataset
@@ -33,8 +34,9 @@ model = timm.create_model(
     pretrained=False,
     num_classes=1000  # ImageNet-1K
 )
-model = torch.load(MODEL_LOAD_PATH)
+model.load_state_dict(torch.load(MODEL_LOAD_PATH))
 model.to(device)
+model.eval()
 
 print(f"Successfully loaded model from {MODEL_LOAD_PATH} to device: {device}")
 
@@ -42,10 +44,10 @@ print(f"Successfully loaded model from {MODEL_LOAD_PATH} to device: {device}")
 # --- Preparing dataset ---
 print("\n--- 2. Preparing Data for SAE Training and Validation ---")
 full_train_split = load_dataset("ILSVRC/imagenet-1k", split='train', cache_dir='./data')
-shuffled_train = full_train_split.shuffle(seed=SEED, buffer_size=50000)
+shuffled_train = full_train_split.shuffle(seed=SEED)
 
-val_split = shuffled_train.take(VAL_SET_SIZE)
-train_split = shuffled_train.skip(VAL_SET_SIZE)
+val_split = shuffled_train.select(range(VAL_SET_SIZE))
+train_split = shuffled_train.select(range(VAL_SET_SIZE, len(shuffled_train)))
 test_split = load_dataset("ILSVRC/imagenet-1k", split='validation', cache_dir='./data')     # standard to use val as test for Image Net 1k
 
 tfms = transforms.Compose([
@@ -62,12 +64,28 @@ def collate(batch):
     labels = torch.tensor([x['label'] for x in batch])
     return imgs, labels
 
+NUM_WORKERS = 4
 train_loader = DataLoader(train_split, batch_size=BATCH_SIZE, collate_fn=collate,
-                          num_workers=train_split.n_shards, pin_memory=True)
+                          num_workers=NUM_WORKERS, pin_memory=True)
 val_loader = DataLoader(val_split, batch_size=BATCH_SIZE, collate_fn=collate, 
-                        num_workers=val_split.n_shards, pin_memory=True)
+                        num_workers=NUM_WORKERS, pin_memory=True)
 test_loader = DataLoader(test_split, batch_size=BATCH_SIZE, collate_fn=collate,
-                         num_workers=test_split.n_shards, pin_memory=True)
+                         num_workers=NUM_WORKERS, pin_memory=True)
+
+# --- Accelerating Probe Training ---
+print("\n--- Creating a smaller subset for fast probe evaluation ---")
+PROBE_SUBSET_FRACTION = 0.30
+probe_subset_size = int(len(train_split) * PROBE_SUBSET_FRACTION)
+probe_train_dataset = train_split.shuffle(seed=SEED+1).select(range(probe_subset_size))
+print(f"Probe training will use {probe_subset_size} random examples ({PROBE_SUBSET_FRACTION:.0%}).")
+probe_train_loader = DataLoader(
+    probe_train_dataset,
+    batch_size=BATCH_SIZE, # You can use the same batch size
+    collate_fn=collate,
+    num_workers=NUM_WORKERS,
+    pin_memory=True,
+    shuffle=True
+)
 
 
 # --- Decoupled Training ---
@@ -81,7 +99,9 @@ target_layers_config = {
 
 L1_config = {
     # "last_layer":   [5e-4, 4e-4, 3e-4, 2e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7]
-    "last_layer":   [5e-4, 2e-4, 1e-5]
+    # "last_layer":   [5e-4, 2e-4, 1e-5]
+    # "last_layer":   [2e-4, 5e-5, 1e-5, 5e-6]
+    "last_layer":   [5e-4]
 }
 
 results_df = pd.DataFrame(columns=['layer_name', 'l1_penalty', 'accuracy', 'sparsity'])
@@ -91,29 +111,29 @@ for layer_name, config in target_layers_config.items():
         sae_save_path = f"{SAE_SAVE_PATH}/sae_{layer_name}_l1_{l1_penalty}.pth"
         os.makedirs(SAE_SAVE_PATH, exist_ok=True)
 
-        train_sae_on_layer(
-            model=model,
-            target_layer=config["layer"],
-            layer_name=layer_name,
-            sae_input_dim=config["dim"],
-            train_loader=train_loader,
-            val_loader=val_loader,
-            device=device,
-            sae_epochs=SAE_EPOCHS,
-            sae_l1_lambda=l1_penalty,
-            sae_save_path=sae_save_path,
-            val_set_size=VAL_SET_SIZE
-        )
+        # train_sae_on_layer(
+        #     model=model,
+        #     target_layer=config["layer"],
+        #     layer_name=layer_name,
+        #     sae_input_dim=config["dim"],
+        #     train_loader=train_loader,
+        #     val_loader=val_loader,
+        #     device=device,
+        #     sae_epochs=SAE_EPOCHS,
+        #     sae_l1_lambda=l1_penalty,
+        #     sae_save_path=sae_save_path,
+        #     val_set_size=VAL_SET_SIZE
+        # )
 
         sae = SparseAutoencoder(input_dim=config["dim"]).to(device)
         sae.load_state_dict(torch.load(sae_save_path))
 
         accuracy, sparsity = evaluate_sae_with_probe(
-            vit_model=model,
+            model=model,
             sae_model=sae,
             target_layer=config["layer"],
             layer_name=layer_name,
-            train_loader=train_loader,
+            train_loader=probe_train_loader,
             test_loader=test_loader,
             device=device
         )
@@ -126,6 +146,11 @@ for layer_name, config in target_layers_config.items():
         }])
 
         results_df = pd.concat([results_df, new_row], ignore_index=True)
+
+        print(f"--- Finished L1 penalty {l1_penalty}. Cleaning up memory. ---")
+        del sae
+        gc.collect()
+        torch.cuda.empty_cache()
 
 results_df.to_csv("sae_l1_experiment_results.csv", index=False)
 print("\n🎉 All SAEs trained successfully.")

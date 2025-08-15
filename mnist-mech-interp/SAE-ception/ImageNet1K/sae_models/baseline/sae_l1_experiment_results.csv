@@ -1,0 +1,3 @@
+layer_name,l1_penalty,accuracy,sparsity
+last_layer,1e-05,84.214,29.04410123697917
+last_layer,5e-06,83.162,17.037740885416664

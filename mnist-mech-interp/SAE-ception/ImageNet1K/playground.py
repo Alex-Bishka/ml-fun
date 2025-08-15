@@ -6,6 +6,24 @@ import timm
 from torchvision import transforms
 from datasets import load_dataset, load_from_disk
 
+from helpers.helpers import set_seed
+from helpers.sae import SparseAutoencoder
+
+SEED = 42
+set_seed(SEED)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+SAE_LOAD_PATH = "./sae_models/baseline/sae_last_layer_l1_0.0005.pth"
+
+sae = SparseAutoencoder(input_dim=1536).to(device)
+sae.load_state_dict(torch.load(SAE_LOAD_PATH))
+sae.eval()
+print("loaded SAE")
+
+import time
+time.sleep(10)
+
+
 # model = timm.create_model(
 #     'convnextv2_large.fcmae_ft_in22k_in1k_384',
 #     pretrained=True,
@@ -17,14 +35,14 @@ from datasets import load_dataset, load_from_disk
 # train_split.save_to_disk('./data/full-train')
 # print(train_split)
 
-train_split = load_dataset("ILSVRC/imagenet-1k", split='train', cache_dir='./data')
-print(train_split)
+# train_split = load_dataset("ILSVRC/imagenet-1k", split='train', cache_dir='./data')
+# print(train_split)
 
-validation_split = load_dataset("ILSVRC/imagenet-1k", split='validation', cache_dir='./data')
-print(validation_split)
+# validation_split = load_dataset("ILSVRC/imagenet-1k", split='validation', cache_dir='./data')
+# print(validation_split)
 
-test_split = load_dataset("ILSVRC/imagenet-1k", split='test', cache_dir='./data')
-print(test_split)
+# test_split = load_dataset("ILSVRC/imagenet-1k", split='test', cache_dir='./data')
+# print(test_split)
 
 
 if False:

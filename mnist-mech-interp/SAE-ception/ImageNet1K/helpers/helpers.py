@@ -1,8 +1,9 @@
+import gc
+import os
 import torch
 import pickle
 import random
 import numpy as np
-import gc
 import plotly.express as px
 
 
@@ -127,11 +128,6 @@ def extract_activations(data_loader, model, sae, device, batches_per_chunk=64):
     chunk_recon_tensors = []
     chunk_label_tensors = []
 
-    final_hidden_chunks = []
-    final_sparse_chunks = []
-    final_recon_chunks = []
-    final_label_chunks = []
-
     captured_activation = []
     def hook_fn(model, input, output):
         activation_tensor = output[0] if isinstance(output, tuple) else output
@@ -140,8 +136,10 @@ def extract_activations(data_loader, model, sae, device, batches_per_chunk=64):
         else:
             captured_activation.append(activation_tensor.detach())
 
-    hook = model.encoder.register_forward_hook(hook_fn)
+    hook = model.head.flatten.register_forward_hook(hook_fn)
 
+    output_dir = './activations'
+    chunk_counter = 0
     with torch.no_grad(), torch.amp.autocast('cuda'):
         for i, (images, labels) in enumerate(data_loader):
             images = images.to(device)
@@ -151,26 +149,33 @@ def extract_activations(data_loader, model, sae, device, batches_per_chunk=64):
             dense_activations = captured_activation[0]
             recon_act, sparse_act = sae(dense_activations)
 
-            # Append tensors to the current chunk list (on GPU)
-            chunk_hidden_tensors.append(dense_activations)
-            chunk_sparse_tensors.append(sparse_act)
-            chunk_recon_tensors.append(recon_act)
-            chunk_label_tensors.append(labels) # Keep labels on CPU to save VRAM
+            chunk_hidden_tensors.append(dense_activations.cpu())
+            chunk_sparse_tensors.append(sparse_act.cpu())
+            chunk_recon_tensors.append(recon_act.cpu())
+            chunk_label_tensors.append(labels.cpu())
 
             # If the chunk is full (or it's the last batch)
             if (i + 1) % batches_per_chunk == 0 or (i + 1) == len(data_loader):
+                print(f"Processing and saving chunk {chunk_counter}...")
+
                 # Concatenate the chunk on the GPU
-                hidden_chunk = torch.cat(chunk_hidden_tensors, dim=0)
-                sparse_chunk = torch.cat(chunk_sparse_tensors, dim=0)
-                recon_chunk = torch.cat(chunk_recon_tensors, dim=0)
-                label_chunk = torch.cat(chunk_label_tensors, dim=0)
+                hidden_chunk = torch.cat(chunk_hidden_tensors, dim=0).numpy()
+                sparse_chunk = torch.cat(chunk_sparse_tensors, dim=0).numpy()
+                recon_chunk = torch.cat(chunk_recon_tensors, dim=0).numpy()
+                label_chunk = torch.cat(chunk_label_tensors, dim=0).numpy()
 
-                # Move the completed chunk to CPU and append
-                final_hidden_chunks.append(hidden_chunk.cpu())
-                final_sparse_chunks.append(sparse_chunk.cpu())
-                final_recon_chunks.append(recon_chunk.cpu())
-                final_label_chunks.append(label_chunk.cpu()) # Move labels to CPU now
-
+                # Save the numpy arrays to a compressed file
+                chunk_filename = os.path.join(output_dir, f'chunk_{chunk_counter}.npz')
+                np.savez_compressed(
+                    chunk_filename,
+                    hidden=hidden_chunk,
+                    sparse=sparse_chunk,
+                    recon=recon_chunk,
+                    labels=label_chunk
+                )
+                
+                chunk_counter += 1
+                
                 # Clear the GPU lists to free VRAM for the next chunk
                 chunk_hidden_tensors.clear()
                 chunk_sparse_tensors.clear()
@@ -179,15 +184,6 @@ def extract_activations(data_loader, model, sae, device, batches_per_chunk=64):
                 
                 # Optional: Force Python's garbage collector and empty PyTorch's cache
                 gc.collect()
-                torch.cuda.empty_cache()
 
     hook.remove()
-
-    results = {
-        'hidden': torch.cat(final_hidden_chunks, dim=0).numpy(),
-        'sparse': torch.cat(final_sparse_chunks, dim=0).numpy(),
-        'recon': torch.cat(final_recon_chunks, dim=0).numpy(),
-        'labels': torch.cat(final_label_chunks, dim=0).numpy()
-    }
-
-    return results
+    print(f"Finished. All activation chunks saved in '{output_dir}'.")

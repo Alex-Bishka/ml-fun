@@ -1,3 +1,4 @@
+import gc
 from tqdm import tqdm
 import torch
 from torch import nn
@@ -57,17 +58,17 @@ def train_sae_on_layer(model, target_layer, layer_name, sae_input_dim, train_loa
 
     # --- SAE Training Loop ---
     model.eval()
+    best_val_loss = float('inf')
     scaler = torch.amp.GradScaler()
     for epoch in range(sae_epochs):
         # -- Training Phase --
         sae.train()
-        total_loss = 0
-        num_batches_processed = 0
+        total_train_loss = 0
         train_bar = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{sae_epochs} [Train]", leave=False)
-        for i, (images, _) in enumerate(train_bar):
+        for images, _ in train_bar:
             images = images.to(device)
             
-            # Get activations from the ViT model without calculating gradients for it
+            # Get activations from the model without calculating gradients for it
             with torch.amp.autocast('cuda'):
                 with torch.no_grad():
                     model(images)
@@ -88,8 +89,9 @@ def train_sae_on_layer(model, target_layer, layer_name, sae_input_dim, train_loa
             with torch.no_grad():
                 sae.decoder.weight.data = F.normalize(sae.decoder.weight.data, p=2, dim=1)
 
-            total_loss += loss.item()
-            num_batches_processed += 1
+            total_train_loss += loss.item()
+
+        avg_train_loss = total_train_loss / len(train_loader)
 
         # -- Validation Phase --
         sae.eval()
@@ -126,11 +128,7 @@ def train_sae_on_layer(model, target_layer, layer_name, sae_input_dim, train_loa
             best_val_loss = avg_val_loss
             torch.save(sae.state_dict(), sae_save_path)
             print(f"  ✨ New best SAE saved with validation loss: {avg_val_loss:.6f}")
-        avg_train_loss = total_loss / num_batches_processed
 
-        print(f"  SAE Epoch [{epoch+1}/{sae_epochs}], Train Loss: {avg_train_loss:.6f}%")
-
-    torch.save(sae.state_dict(), sae_save_path)
     hook.remove()
 
 
@@ -147,7 +145,8 @@ def evaluate_sae_with_probe(model, sae_model, target_layer, layer_name, train_lo
     probe = nn.Linear(probe_input_dim, num_classes).to(device)
     probe_optimizer = torch.optim.Adam(probe.parameters(), lr=1e-3)
     probe_criterion = nn.CrossEntropyLoss()
-    PROBE_EPOCHS = 10  # Number of epochs to train the probe
+    # PROBE_EPOCHS = 5  # Number of epochs to train the probe
+    PROBE_EPOCHS = 1  # Number of epochs to train the probe
 
     # --- 2. Hook Setup ---
     activations = {}
@@ -164,71 +163,72 @@ def evaluate_sae_with_probe(model, sae_model, target_layer, layer_name, train_lo
         return hook
     hook = target_layer.register_forward_hook(get_activation_hook(layer_name))
 
-    # --- 3. Generate Sparse Features from the TRAINING set ---
-    print("  Generating sparse features from the TRAINING set for probe training...")
+    # --- 3. Train the Probe (On-the-Fly) ---
+    print(f"  Training the linear probe for {PROBE_EPOCHS} epochs...")
     model.eval()
     sae_model.eval()
-    all_train_features = []
-    all_train_labels = []
-    with torch.no_grad():
-        for images, labels in train_loader:
-            images = images.to(device)
-            model(images)
-            dense_activations = activations[layer_name]
-            _, sparse_activations = sae_model(dense_activations)
-            all_train_features.append(sparse_activations)
-            all_train_labels.append(labels)
-    
-    train_features_tensor = torch.cat(all_train_features, dim=0)
-    train_labels_tensor = torch.cat(all_train_labels, dim=0).to(device)
-    probe_train_dataset = TensorDataset(train_features_tensor, train_labels_tensor)
-    probe_train_loader = DataLoader(probe_train_dataset, batch_size=64, shuffle=True)
-
-    # --- 4. Train the Probe ---
-    print(f"  Training the linear probe for {PROBE_EPOCHS} epochs...")
     probe.train()
     for epoch in range(PROBE_EPOCHS):
-        for batch_features, batch_labels in probe_train_loader:
+        probe_train_bar = tqdm(train_loader, desc=f"Probe Epoch {epoch+1}/{PROBE_EPOCHS}", leave=False)
+        for images, labels in probe_train_bar:
+            images, labels = images.to(device), labels.to(device)
+
+            # Generate features for this batch
+            with torch.no_grad():
+                with torch.amp.autocast('cuda'):
+                    model(images)
+                    dense_activations = activations[layer_name]
+                    _, sparse_activations = sae_model(dense_activations)
+
+            # Train the probe on this batch's features
             probe_optimizer.zero_grad()
-            outputs = probe(batch_features)
-            loss = probe_criterion(outputs, batch_labels)
+            
+            with torch.amp.autocast('cuda'):
+                outputs = probe(sparse_activations)
+                loss = probe_criterion(outputs, labels)
+
             loss.backward()
             probe_optimizer.step()
+    
+    # --- 4. Evaluate the Probe on the Test Set (On-the-Fly) ---
+    print("  Evaluating the probe on the test set...")
+    probe.eval()
+    total_correct = 0
+    total_samples = 0
+    total_nonzero_activations = 0
+    total_activations = 0
 
-    # --- 5. Generate Sparse Features from the TEST set for evaluation ---
-    print("  Generating sparse features from the TEST set for probe evaluation...")
-    all_test_features = []
-    all_test_labels = []
     with torch.no_grad():
-        for images, labels in test_loader:
-            images = images.to(device)
+        for images, labels in tqdm(test_loader, desc="Probe Evaluation"):
+            images, labels = images.to(device), labels.to(device)
+
+            # Generate features for this batch
             model(images)
             dense_activations = activations[layer_name]
             _, sparse_activations = sae_model(dense_activations)
-            all_test_features.append(sparse_activations)
-            all_test_labels.append(labels)
+            
+            # Get probe predictions
+            outputs = probe(sparse_activations)
+            _, predicted = torch.max(outputs.data, 1)
 
-    test_features_tensor = torch.cat(all_test_features, dim=0)
-    test_labels_tensor = torch.cat(all_test_labels, dim=0).to(device)
+            # Update accuracy metrics
+            total_samples += labels.size(0)
+            total_correct += (predicted == labels).sum().item()
+            
+            # Update sparsity metrics
+            total_nonzero_activations += torch.count_nonzero(sparse_activations).item()
+            total_activations += sparse_activations.numel()
 
-    # --- 6. Evaluate the Probe on the Test Set ---
-    probe.eval()
-    with torch.no_grad():
-        outputs = probe(test_features_tensor)
-        _, predicted = torch.max(outputs.data, 1)
-        total = test_labels_tensor.size(0)
-        correct = (predicted == test_labels_tensor).sum().item()
-
-    accuracy = 100 * correct / total
+    accuracy = 100 * total_correct / total_samples
+    sparsity_percent = 100 * (1.0 - (total_nonzero_activations / total_activations))
+    
     print(f"  🎯 Probe Accuracy on Test Set for '{layer_name}': {accuracy:.2f}%")
+    print(f"  📊 Sparsity on Test Set for '{layer_name}': {sparsity_percent:.2f}% of hidden neurons were zero.")
 
-    # --- Calculate and report sparsity on the test set's sparse features ---
-    with torch.no_grad():
-        num_zero_activations = (test_features_tensor == 0).sum().item()
-        total_activations = test_features_tensor.numel()
-        sparsity = 100 * (num_zero_activations / total_activations)
-        print(f"  📊 Sparsity on Test Set for '{layer_name}': {sparsity:.2f}% of hidden neurons were zero.")
-
-    # --- 7. Cleanup ---
+    # --- 5. Cleanup ---
     hook.remove()
-    return accuracy, sparsity
+    del probe, probe_optimizer, probe_criterion
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    return accuracy, sparsity_percent
