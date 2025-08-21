@@ -21,11 +21,11 @@ EMBEDS_PATH = './embeds/pos_embed_edge_384_99.56.pth'
 # VIT_PATH = './classifiers/F0/best_model_lf_0.01.pth'
 # SAE_PATH = './sae_models/F0/sae_last_layer_l1_0.0002.pth'
 
-# VIT_PATH = './classifiers/F1/best_model_lf_0.01.pth'
-# SAE_PATH = './sae_models/F1/sae_last_layer_l1_0.0002.pth'
+VIT_PATH = './classifiers/F1/best_model_lf_0.01.pth'
+SAE_PATH = './sae_models/F1/sae_last_layer_l1_0.0002.pth'
 
-VIT_PATH = './classifiers/F2/best_model_lf_0.3.pth'
-SAE_PATH = './sae_models/F2/sae_last_layer_l1_0.0002.pth'
+# VIT_PATH = './classifiers/F2/best_model_lf_0.3.pth'
+# SAE_PATH = './sae_models/F2/sae_last_layer_l1_0.0002.pth'
 
 IMG_RES = 384
 FEATURE_DIM = 1280
@@ -66,7 +66,8 @@ activation_data = extract_activations(
     device=device
 )
 
-codes = activation_data['sparse']
+# codes = activation_data['sparse']
+codes = activation_data['hidden']
 labels = activation_data['labels']
 
 H = codes.shape[1]
@@ -87,11 +88,12 @@ for j in range(H):
     mi_indices[j] = mi / (h_on + 1e-12)
 
     # standard CSI
-    class_means = np.array([np.mean(act_j[labels == c]) for c in unique_classes])
+    act_j_rectified = np.maximum(0, act_j)
+    class_means = np.array([np.mean(act_j_rectified[labels == c]) for c in unique_classes])
     mu_max = np.max(class_means)
     max_idx = np.argmax(class_means)
     mu_other = np.mean(class_means[np.arange(num_classes) != max_idx]) if num_classes > 1 else 0
-    denominator = mu_max + mu_other
+    denominator = mu_max + mu_other + 1e-12
     csi_indices[j] = (mu_max - mu_other) / denominator if denominator != 0 else 0
 
 print("Mean class-selectivity (normalized MI):", mi_indices.mean())
