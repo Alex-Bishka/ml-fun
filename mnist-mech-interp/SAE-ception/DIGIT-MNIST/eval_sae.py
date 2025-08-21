@@ -42,7 +42,12 @@ model = NeuralNetwork().to(device)
 sae_hidden_one = SparseAutoencoder(input_size=16, hidden_size=HIDDEN_SIZE).to(device)
 sae_hidden_two = SparseAutoencoder(input_size=16, hidden_size=HIDDEN_SIZE).to(device)
 
-best_model_path = "./full-total_epoch_100/full-70.pth"
+
+# best_model_path = "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth"
+# best_model_path = "./SAE-Results/256-0.75/results/F0/models/25_top/best_model_lf_0.14.pth"
+# best_model_path = "./SAE-Results/256-0.75/results/F1/models/25_top_0.14/25_top/best_model_lf_0.06.pth"
+best_model_path = "./SAE-Results/256-0.75/results/F2/models/25_top_0.14_25_top_0.06/25_top/best_model_lf_0.18.pth"
+# best_model_path = "./full-total_epoch_100/full-70.pth"
 checkpoint = torch.load(best_model_path)
 model.load_state_dict(checkpoint['model_state_dict'])
 sae_hidden_one.load_state_dict(checkpoint['sae_one_state_dict'])
@@ -61,13 +66,13 @@ sparsity_two = np.mean(Z_test_two > 1e-5) * Z_test_two.shape[1]
 print(f"Average Non-Zero Features per Image (Hidden One): {sparsity_one:.2f}")
 print(f"Average Non-Zero Features per Image (Hidden Two): {sparsity_two:.2f}")
 
-print("\n--- Training Linear Probes ---")
-clf_one = LogisticRegression(penalty='l2', max_iter=1000, n_jobs=-1)
-clf_one.fit(Z_train_one, y_train)
-acc_one = clf_one.score(Z_test_one, y_test)
-print(f"Linear Probe Accuracy (Hidden One): {acc_one:.2%}")
+# print("\n--- Training Linear Probes ---")
+# clf_one = LogisticRegression(penalty='l2', max_iter=1000, n_jobs=-1)
+# clf_one.fit(Z_train_one, y_train)
+# acc_one = clf_one.score(Z_test_one, y_test)
+# print(f"Linear Probe Accuracy (Hidden One): {acc_one:.2%}")
 
-clf_two = LogisticRegression(penalty='l2', max_iter=1000, n_jobs=-1)
-clf_two.fit(Z_train_two, y_train)
-acc_two = clf_two.score(Z_test_two, y_test)
-print(f"Linear Probe Accuracy (Hidden Two): {acc_two:.2%}")
+# clf_two = LogisticRegression(penalty='l2', max_iter=1000, n_jobs=-1)
+# clf_two.fit(Z_train_two, y_train)
+# acc_two = clf_two.score(Z_test_two, y_test)
+# print(f"Linear Probe Accuracy (Hidden Two): {acc_two:.2%}")

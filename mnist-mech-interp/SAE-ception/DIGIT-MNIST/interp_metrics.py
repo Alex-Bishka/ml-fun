@@ -34,12 +34,14 @@ if device.type.lower() == "cpu":
 test_dataset = EdgeDataset(test_images, test_labels)
 test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True)
 
-layer = 'two'
+layer = 'one'
 model_paths = [
     # "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth",
     # "./SAE-Results/256-0.75/results/F0/models/25_top/best_model_lf_0.14.pth",
     # "./SAE-Results/256-0.75/results/F1/models/25_top_0.14/25_top/best_model_lf_0.06.pth",
     # "./SAE-Results/256-0.75/results/F2/models/25_top_0.14_25_top_0.06/25_top/best_model_lf_0.18.pth"
+
+    "./models_saved/256_mask/best_model_lf_0.29.pth"
 
     # "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth",
     # "./SAE-Results/256-0.75/results/F0/models/25_mask/best_model_lf_0.01.pth",
@@ -51,10 +53,13 @@ model_paths = [
     # "./SAE-Results/256-0.75/results/F1/models/256_top_0.07/256_top/best_model_lf_0.04.pth",
     # "./SAE-Results/256-0.75/results/F2/models/256_top_0.07_256_top_0.04/256_top/best_model_lf_0.03.pth"
 
-    "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth",
-    "./SAE-Results/256-0.75/results/F0/models/256_mask/best_model_lf_0.29.pth",
-    "./SAE-Results/256-0.75/results/F1/models/256_mask_0.29/256_mask/best_model_lf_0.02.pth",
-    "./SAE-Results/256-0.75/results/F2/models/256_mask_0.29_256_mask_0.02/256_mask/best_model_lf_0.13.pth"
+    # "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth",
+    # "./SAE-Results/256-0.75/results/F0/models/256_mask/best_model_lf_0.29.pth",
+    # "./SAE-Results/256-0.75/results/F1/models/256_mask_0.29/256_mask/best_model_lf_0.02.pth",
+    # "./SAE-Results/256-0.75/results/F2/models/256_mask_0.29_256_mask_0.02/256_mask/best_model_lf_0.13.pth"
+
+    # "./full-total_epoch_100/full-34.pth",
+    # "./full-total_epoch_100/full-70.pth"
 ]
 for best_model_path in model_paths:
     print(best_model_path)
@@ -77,25 +82,37 @@ for best_model_path in model_paths:
         device=device
     )
 
-    codes = activation_data[f'sparse_{layer}']
+    # codes = activation_data[f'sparse_{layer}']
+    codes = activation_data[f'hidden_{layer}']
     labels = activation_data['labels']
 
 
     H = codes.shape[1]
-    cs_indices = np.zeros(H)
+    mi_indices = np.zeros(H)
+    csi_indices = np.zeros(H)
+
+    unique_classes = np.unique(labels)
+    num_classes = len(unique_classes)
     for j in range(H):
-        # binarize activation on atom j
         act_j = codes[:, j]
+
+        # normalized MI variant
         thr = np.percentile(act_j, 75)           # e.g. threshold at top 25%
         binarized = (act_j > thr).astype(int)
-
-        # mutual info between “atom-on/off” and class label
         mi = mutual_info_score(binarized, labels)
-
-        # normalize by entropy of the on/off signal
         p_on = binarized.mean()
         h_on = -(p_on*np.log2(p_on + 1e-12) + (1-p_on)*np.log2(1-p_on + 1e-12))
-        cs_indices[j] = mi / (h_on + 1e-12)
+        mi_indices[j] = mi / (h_on + 1e-12)
 
-    print("Mean class-selectivity (normalized MI):", cs_indices.mean())
+        # standard CSI
+        act_j_rectified = np.maximum(0, act_j)
+        class_means = np.array([np.mean(act_j_rectified[labels == c]) for c in unique_classes])
+        mu_max = np.max(class_means)
+        max_idx = np.argmax(class_means)
+        mu_other = np.mean(class_means[np.arange(num_classes) != max_idx]) if num_classes > 1 else 0
+        denominator = mu_max + mu_other + 1e-12
+        csi_indices[j] = (mu_max - mu_other) / denominator if denominator != 0 else 0
+
+    print("Mean class-selectivity (normalized MI):", mi_indices.mean())
+    print("Mean class-selectivity:", csi_indices.mean())
     print("#" * 60)

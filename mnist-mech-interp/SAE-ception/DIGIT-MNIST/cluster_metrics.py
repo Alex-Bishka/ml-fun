@@ -30,13 +30,14 @@ test_labels = load_intermediate_labels("./intermediate-labels/first_layer/test_l
 sparse_type = 'full'
 mask_type = '256_top'
 model_paths = [
-    ("./SAE-Results/256-0.75/results/baseline/model_state_dict.pth", f"./interp/{sparse_type}/baseline"),
-    (f"./SAE-Results/256-0.75/results/F0/models/{mask_type}/best_model_lf_0.07.pth",
-     f"./interp/{sparse_type}/F0"),
-    (f"./SAE-Results/256-0.75/results/F1/models/{mask_type}_0.07/{mask_type}/best_model_lf_0.04.pth",
-     f"./interp/{sparse_type}/F1"),
-    (f"./SAE-Results/256-0.75/results/F2/models/{mask_type}_0.07_{mask_type}_0.04/{mask_type}/best_model_lf_0.03.pth",
-     f"./interp/{sparse_type}/F2"),
+    ("./models_saved/256_mask/best_model_lf_0.29.pth", ".")
+    # ("./SAE-Results/256-0.75/results/baseline/model_state_dict.pth", f"./interp/{sparse_type}/baseline"),
+    # (f"./SAE-Results/256-0.75/results/F0/models/{mask_type}/best_model_lf_0.07.pth",
+    #  f"./interp/{sparse_type}/F0"),
+    # (f"./SAE-Results/256-0.75/results/F1/models/{mask_type}_0.07/{mask_type}/best_model_lf_0.04.pth",
+    #  f"./interp/{sparse_type}/F1"),
+    # (f"./SAE-Results/256-0.75/results/F2/models/{mask_type}_0.07_{mask_type}_0.04/{mask_type}/best_model_lf_0.03.pth",
+    #  f"./interp/{sparse_type}/F2"),
 ]
 for model_path, df_path in model_paths: 
     seed = 42

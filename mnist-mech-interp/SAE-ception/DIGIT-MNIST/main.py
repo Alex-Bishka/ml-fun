@@ -30,7 +30,7 @@ L1_PENALTY = 0.75
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/256_top_0.07_25_top_0.08"
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/256_top_0.07_256_top_0.04"
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/25_mask_0.01_25_mask_0.06"
-RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/256_mask_0.29_256_mask_0.02"
+# RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F2/256_mask_0.29_256_mask_0.02"
 
 # target features from iteration 1
 # RECON_ACT_BASE_PATH = f"./SAE-Results/256-0.75/features/F1/256_top_0.07"
@@ -64,6 +64,16 @@ val_labels = load_intermediate_labels("./intermediate-labels/first_layer/val_lab
 test_images = load_intermediate_labels("./intermediate-labels/first_layer/test_images.pkl")
 test_labels = load_intermediate_labels("./intermediate-labels/first_layer/test_labels.pkl")
 
+RAND_SEED = 42
+torch.manual_seed(RAND_SEED)
+
+N_examples = len(train_images)  # e.g., 50000
+feat_dim = 16  # your SAE target dim
+
+rand_mat = torch.randn(N_examples, feat_dim).float()
+rand_mat = rand_mat / rand_mat.norm(dim=1, keepdim=True)  # normalize rows
+recon_max_sparse_act_one = [rand_mat[i].clone() for i in range(N_examples)]
+
 # loop across all reconstruction targets
 # for N in [25, 256]:
 for N in [256]:
@@ -71,8 +81,8 @@ for N in [256]:
     for sparse_type in ["mask"]:
         print(f"\nStarting run for {N}-{sparse_type}!\n")
 
-        recon_act_path = f"{RECON_ACT_BASE_PATH}/{N}_{sparse_type}.pkl"
-        recon_max_sparse_act_one = load_intermediate_labels(recon_act_path)
+        # recon_act_path = f"{RECON_ACT_BASE_PATH}/{N}_{sparse_type}.pkl"
+        # recon_max_sparse_act_one = load_intermediate_labels(recon_act_path)
 
         loss_data_dict = {}
         for loss_factor in loss_factors:
