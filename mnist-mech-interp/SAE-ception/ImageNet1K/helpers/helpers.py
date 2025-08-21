@@ -103,7 +103,7 @@ def get_top_N_features(N, sparse_act_one, labels):
     return avg_digit_encoding, top_n_features
     
 
-def extract_activations(data_loader, model, sae, device, batches_per_chunk=64):
+def extract_activations(data_loader, model, sae, device, output_dir, batches_per_chunk=64):
     """
     Extracts hidden, sparse, and reconstructed activations from a model and its SAEs.
 
@@ -138,7 +138,7 @@ def extract_activations(data_loader, model, sae, device, batches_per_chunk=64):
 
     hook = model.head.flatten.register_forward_hook(hook_fn)
 
-    output_dir = './activations'
+    os.makedirs(output_dir, exist_ok=True)
     chunk_counter = 0
     with torch.no_grad(), torch.amp.autocast('cuda'):
         for i, (images, labels) in enumerate(data_loader):

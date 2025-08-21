@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import re
 import os
 import glob
 from itertools import islice
@@ -30,13 +31,19 @@ class ChunkedActivationDataset(torch.utils.data.IterableDataset):
         self.shuffle_chunks = shuffle_chunks
         self.shuffle_in_chunk = shuffle_in_chunk
 
-        # Discover and sort chunk files to ensure a consistent initial order
-        self.chunk_files = sorted(glob.glob(os.path.join(self.activations_dir, 'chunk_*.npz')))
-        if not self.chunk_files:
+        # Discover chunk files and sort numerically by chunk number
+        chunk_files = glob.glob(os.path.join(self.activations_dir, '*.npz'))
+        if not chunk_files:
             raise FileNotFoundError(f"No chunk files found in {self.activations_dir}")
-
-        print(f"Found {len(self.chunk_files)} activation chunks.")
         
+        # Sort by extracting the integer after 'chunk_' and before '.npz'
+        self.chunk_files = sorted(
+            chunk_files,
+            key=lambda x: int(re.search(r'chunk_(\d+)\.npz', os.path.basename(x)).group(1))
+        )
+        
+        print(f"Found {len(self.chunk_files)} activation chunks.")
+    
     def __iter__(self):
         worker_info = torch.utils.data.get_worker_info()
         
@@ -78,7 +85,9 @@ class ChunkedActivationDataset(torch.utils.data.IterableDataset):
                     current_global_idx = global_sample_idx + local_idx
                     
                     # Fetch the original image and label from the base dataset
-                    image, original_label = self.base_dataset[current_global_idx]
+                    sample = self.base_dataset[current_global_idx]
+                    image = sample['image']
+                    original_label = sample['label']
                     
                     # Sanity check: ensure the label from the dataset matches the one saved in the chunk
                     assert original_label == labels_in_chunk[local_idx], \

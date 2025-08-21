@@ -13,11 +13,15 @@ from helpers.sae import SparseAutoencoder, train_sae_on_layer, evaluate_sae_with
 
 # --- 0. For reproducibility & Configuration ---
 SEED = 42
-MODEL_LOAD_PATH = './SAE-Results/results/baseline/baseline_classifier.pth'  # convnextv2_large.fcmae_ft_in22k_in1k_384_baseline.pth
-SAE_SAVE_PATH = './sae_models/baseline'
+# MODEL_LOAD_PATH = './SAE-Results/results/baseline/baseline_classifier.pth'  # convnextv2_large.fcmae_ft_in22k_in1k_384_baseline.pth
+# MODEL_LOAD_PATH = './SAE-Results/results/F0/best_model_lf_0.01.pth'
+# MODEL_LOAD_PATH = './SAE-Results/results/F1/best_model_lf_0.5.pth'
+MODEL_LOAD_PATH = './SAE-Results/results/F2/best_model_lf_0.5.pth'
+SAE_SAVE_PATH = './sae_models/F2'
+# SAE_SAVE_PATH = './tmp-sae-results'
 
 BATCH_SIZE = 128
-SAE_EPOCHS = 5
+SAE_EPOCHS = 1
 
 VAL_SET_SIZE = 25000
 IMG_RES = 384
@@ -101,7 +105,7 @@ L1_config = {
     # "last_layer":   [5e-4, 4e-4, 3e-4, 2e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7]
     # "last_layer":   [5e-4, 2e-4, 1e-5]
     # "last_layer":   [2e-4, 5e-5, 1e-5, 5e-6]
-    "last_layer":   [5e-4]
+    "last_layer":   [2e-4, 1e-4]
 }
 
 results_df = pd.DataFrame(columns=['layer_name', 'l1_penalty', 'accuracy', 'sparsity'])
@@ -111,19 +115,19 @@ for layer_name, config in target_layers_config.items():
         sae_save_path = f"{SAE_SAVE_PATH}/sae_{layer_name}_l1_{l1_penalty}.pth"
         os.makedirs(SAE_SAVE_PATH, exist_ok=True)
 
-        # train_sae_on_layer(
-        #     model=model,
-        #     target_layer=config["layer"],
-        #     layer_name=layer_name,
-        #     sae_input_dim=config["dim"],
-        #     train_loader=train_loader,
-        #     val_loader=val_loader,
-        #     device=device,
-        #     sae_epochs=SAE_EPOCHS,
-        #     sae_l1_lambda=l1_penalty,
-        #     sae_save_path=sae_save_path,
-        #     val_set_size=VAL_SET_SIZE
-        # )
+        train_sae_on_layer(
+            model=model,
+            target_layer=config["layer"],
+            layer_name=layer_name,
+            sae_input_dim=config["dim"],
+            train_loader=train_loader,
+            val_loader=val_loader,
+            device=device,
+            sae_epochs=SAE_EPOCHS,
+            sae_l1_lambda=l1_penalty,
+            sae_save_path=sae_save_path,
+            val_set_size=VAL_SET_SIZE
+        )
 
         sae = SparseAutoencoder(input_dim=config["dim"]).to(device)
         sae.load_state_dict(torch.load(sae_save_path))

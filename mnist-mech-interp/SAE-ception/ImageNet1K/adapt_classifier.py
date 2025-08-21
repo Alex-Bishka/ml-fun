@@ -16,8 +16,16 @@ from helpers.helpers import set_seed
 BATCH_SIZE = 64
 NUM_EPOCHS = 1
 
-MODEL_LOAD_PATH = './SAE-Results/results/baseline/baseline_classifier.pth'
-ACTIVATIONS_BASE_PATH = "./activations"
+# MODEL_LOAD_PATH = './SAE-Results/results/baseline/baseline_classifier.pth'
+# ACTIVATIONS_BASE_PATH = "./SAE-Results/training-features/baseline/aux-activations-top-25"
+
+# MODEL_LOAD_PATH = './SAE-Results/results/F0/best_model_lf_0.01.pth'
+# ACTIVATIONS_BASE_PATH = "./SAE-Results/training-features/F0/aux-activations-top-25"
+# RECON_KEY = "recon_top"
+
+MODEL_LOAD_PATH = './SAE-Results/results/F1/best_model_lf_0.5.pth'
+ACTIVATIONS_BASE_PATH = "./SAE-Results/training-features/F1/aux-activations-top-25"
+RECON_KEY = "recon_top"
 
 SEED = 42
 VAL_SET_SIZE = 25000
@@ -32,7 +40,7 @@ BASE_DECAY = 0.05
 # max_loss = 0.51
 # step = 0.05
 # loss_factors = np.arange(min_loss, round(max_loss + step, 3), step)
-loss_factors = np.array([0.01, 0.1, 0.2, 0.3, 0.5, 1, 3])
+loss_factors = np.array([0.01, 0.1, 0.2, 0.5])
 print(len(loss_factors))
 print(loss_factors)
 print(f"Base LR: {BASE_LR}  |  Base decay: {BASE_DECAY}")
@@ -56,6 +64,7 @@ test_split = load_dataset("ILSVRC/imagenet-1k", split='validation', cache_dir='.
 train_dataset_with_activations = ChunkedActivationDataset(
     base_dataset=train_split,
     activations_dir=ACTIVATIONS_BASE_PATH,
+    recon_key=RECON_KEY,
     shuffle_chunks=False,
     shuffle_in_chunk=False
 )
@@ -126,20 +135,26 @@ for loss_factor in loss_factors:
         activation_tensor = output[0] if isinstance(output, tuple) else output
         if activation_tensor.dim() == 3:
             # Assuming shape is [batch, tokens, dim], we take the CLS token at index 0
-            activations.append(activation_tensor[:, 0, :].detach())
+            activations.append(activation_tensor[:, 0, :])
         else: # Assuming shape is [batch, dim]
-            activations.append(activation_tensor.detach())
+            activations.append(activation_tensor)
 
     hook = model.head.flatten.register_forward_hook(hook_fn)
 
-    # to only re-train the encoder params:
+    # Freeze the entire model initially
     for param in model.parameters():
         param.requires_grad = False
 
+    # Unfreeze the final classification layer (for class_loss)
     for param in model.head.fc.parameters():
         param.requires_grad = True
 
-    optimizer = torch.optim.SGD(model.head.fc.parameters(), lr=BASE_LR, momentum=0.9, weight_decay=BASE_DECAY)
+    # Unfreeze the normalization layer before the hook (for feature_loss)
+    for param in model.head.norm.parameters():
+        param.requires_grad = True
+
+    trainable_params = list(model.head.fc.parameters()) + list(model.head.norm.parameters())
+    optimizer = torch.optim.SGD(trainable_params, lr=BASE_LR, momentum=0.9, weight_decay=BASE_DECAY)
     criterion = torch.nn.CrossEntropyLoss()
     scaler = torch.amp.GradScaler()
     
@@ -174,7 +189,7 @@ for loss_factor in loss_factors:
 
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(model.head.fc.parameters(), max_norm=1.0)
+            torch.nn.utils.clip_grad_norm_(trainable_params, max_norm=1.0)
             scaler.step(optimizer)
             scaler.update()
 

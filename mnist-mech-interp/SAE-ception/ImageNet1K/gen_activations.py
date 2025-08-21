@@ -2,7 +2,6 @@ import os
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 import torch
-import pickle
 from torchvision import transforms
 from torch.utils.data import DataLoader
 import timm
@@ -15,8 +14,18 @@ from helpers.helpers import set_seed, extract_activations, get_top_N_features, g
 
 # --- 0. For reproducibility & Configuration ---
 SEED = 42
-MODEL_LOAD_PATH = './SAE-Results/results/baseline/baseline_classifier.pth'
-SAE_MODEL_PATH = "./sae_models/baseline/sae_last_layer_l1_0.0005_30.pth"
+# MODEL_LOAD_PATH = './SAE-Results/results/baseline/baseline_classifier.pth'
+# SAE_MODEL_PATH = "./sae_models/baseline/sae_last_layer_l1_0.0005_30.pth"
+# output_dir = "act-baseline"
+
+# MODEL_LOAD_PATH = './SAE-Results/results/F0/best_model_lf_0.01.pth'
+# SAE_MODEL_PATH = "./sae_models/F0/sae_last_layer_l1_0.0002.pth"
+# SAE_MODEL_PATH = "./sae_models/F0/sae_last_layer_l1_0.0005.pth"
+# output_dir = "act-F0"
+
+MODEL_LOAD_PATH = './SAE-Results/results/F1/best_model_lf_0.5.pth'
+SAE_MODEL_PATH = "./sae_models/F1/sae_last_layer_l1_0.0001.pth"
+output_dir = "act-F1"
 
 BATCH_SIZE = 128
 
@@ -64,48 +73,34 @@ def collate(batch):
     labels = torch.tensor([x['label'] for x in batch])
     return imgs, labels
 
+def collate_for_eval(batch):
+    imgs = torch.stack([tfms(x['image']) for x in batch])
+    labels = torch.tensor([x['label'] for x in batch])
+    return imgs, labels
+
 NUM_WORKERS = 4
 train_loader = DataLoader(train_split, batch_size=BATCH_SIZE, collate_fn=collate,
                           num_workers=NUM_WORKERS, pin_memory=True)
-val_loader = DataLoader(val_split, batch_size=BATCH_SIZE, collate_fn=collate, 
+val_loader = DataLoader(val_split, batch_size=BATCH_SIZE, collate_fn=collate_for_eval, 
+                        num_workers=NUM_WORKERS, pin_memory=True)
+test_loader = DataLoader(test_split, batch_size=BATCH_SIZE, collate_fn=collate_for_eval,
                         num_workers=NUM_WORKERS, pin_memory=True)
 
 
-print("\n--- 3. Extracting Activations ---")
+print("\n--- 3. Extracting Activations (from train data -> model adaptation) ---")
 activation_data = extract_activations(
     data_loader=train_loader,
     model=model,
     sae=sae,
-    device=device
+    device=device,
+    output_dir=output_dir
 )
 
-# print("\n--- 4. Generating Aux Loss Targets ---")
-# sparse_vector_sizes = [4 * FEATURE_DIM]
-# for N_recon in sparse_vector_sizes:
-#     labels = activation_data["labels"]
-#     sparse_act = activation_data["sparse"]
-#     avg_digit_encoding, top_n_features = get_top_N_features(N_recon, sparse_act_one, labels)
-    
-#     feature_indices_dict = {}
-#     for digit in range(0, 10):
-#         feature_indices_dict[digit] = top_n_features[digit]['indices']
-    
-#     print("Features used:")
-#     print(len(feature_indices_dict[0]))
-    
-#     recon_max_sparse_training, recon_max_sparse_ablated_training = get_sublabel_data(
-#                                                                     labels,
-#                                                                     feature_indices_dict,
-#                                                                     sparse_act,
-#                                                                     sae,
-#                                                                     device,
-#                                                                     FEATURE_DIM * 4
-#                                                                 )
-    
-#     file_path = f"./{N_recon}_top.pkl"
-#     with open(file_path, "wb") as f:
-#         pickle.dump(recon_max_sparse_training, f)
-    
-#     file_path = f"./{N_recon}_mask.pkl"
-#     with open(file_path, "wb") as f:
-#         pickle.dump(recon_max_sparse_ablated_training, f)
+# print("\n--- 3. Extracting Activations (from test data -> metrics) ---")
+# activation_data = extract_activations(
+#     data_loader=test_loader,
+#     model=model,
+#     sae=sae,
+#     device=device,
+#     output_dir=output_dir
+# )

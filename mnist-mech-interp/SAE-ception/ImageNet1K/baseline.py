@@ -15,8 +15,8 @@ from helpers.sae import SparseAutoencoder, train_sae_on_layer, evaluate_sae_with
 # --- 0. For reproducibility & Configuration ---
 SEED = 42
 # baseline model accuracy is 87.89%
-MODEL_LOAD_PATH = './SAE-Results/results/baseline/baseline_classifier.pth'  # convnextv2_large.fcmae_ft_in22k_in1k_384_baseline.pth
-SAE_SAVE_PATH = './sae_models/baseline'
+# MODEL_LOAD_PATH = './SAE-Results/results/baseline/baseline_classifier.pth'  # convnextv2_large.fcmae_ft_in22k_in1k_384_baseline.pth
+MODEL_LOAD_PATH = './SAE-Results/results/F0/best_model_lf_0.1.pth'
 
 BATCH_SIZE = 128
 SAE_EPOCHS = 5
