@@ -7,17 +7,13 @@ import numpy as np
 from models_and_data.nn import NeuralNetwork
 from models_and_data.sae import SparseAutoencoder
 from models_and_data.edgedataset import EdgeDataset
-from models_and_data.model_helpers import (load_intermediate_labels, extract_activations, evaluate_and_gather_activations)
+from models_and_data.model_helpers import (load_intermediate_labels, extract_activations, evaluate_and_gather_activations, get_sublabel_data, get_top_N_features)
 
 from sklearn.metrics import mutual_info_score
 
 HIDDEN_SIZE = 256
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"We will be using device: {device}")
-
-# train data
-train_images = load_intermediate_labels("./intermediate-labels/first_layer/train_images.pkl")
-train_labels = load_intermediate_labels("./intermediate-labels/first_layer/train_labels.pkl")
 
 # test data
 test_images = load_intermediate_labels("./intermediate-labels/first_layer/test_images.pkl")
@@ -36,12 +32,12 @@ test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False, num_worker
 
 layer = 'one'
 model_paths = [
-    # "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth",
-    # "./SAE-Results/256-0.75/results/F0/models/25_top/best_model_lf_0.14.pth",
-    # "./SAE-Results/256-0.75/results/F1/models/25_top_0.14/25_top/best_model_lf_0.06.pth",
-    # "./SAE-Results/256-0.75/results/F2/models/25_top_0.14_25_top_0.06/25_top/best_model_lf_0.18.pth"
+    "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth",
+    "./SAE-Results/256-0.75/results/F0/models/25_top/best_model_lf_0.14.pth",
+    "./SAE-Results/256-0.75/results/F1/models/25_top_0.14/25_top/best_model_lf_0.06.pth",
+    "./SAE-Results/256-0.75/results/F2/models/25_top_0.14_25_top_0.06/25_top/best_model_lf_0.18.pth"
 
-    "./models_saved/256_mask/best_model_lf_0.29.pth"
+    # "./models_saved/256_mask/best_model_lf_0.29.pth"
 
     # "./SAE-Results/256-0.75/results/baseline/model_state_dict.pth",
     # "./SAE-Results/256-0.75/results/F0/models/25_mask/best_model_lf_0.01.pth",
@@ -82,8 +78,34 @@ for best_model_path in model_paths:
         device=device
     )
 
+    sparse_vector_sizes = [25]
+    for N_recon in sparse_vector_sizes:
+        labels = activation_data["labels"]
+        sparse_act_one = activation_data["sparse_one"]
+        avg_digit_encoding, top_n_features = get_top_N_features(N_recon, sparse_act_one, labels)
+        
+        feature_indices_dict = {}
+        for digit in range(0, 10):
+            feature_indices_dict[digit] = top_n_features[digit]['indices']
+        
+        print("Features used:")
+        print(len(feature_indices_dict[0]))
+        
+        recon_max_sparse_training, recon_max_sparse_ablated_training = get_sublabel_data(
+                                                                        test_labels,
+                                                                        test_images,
+                                                                        feature_indices_dict,
+                                                                        sparse_act_one,
+                                                                        sae,
+                                                                        device,
+                                                                        HIDDEN_SIZE
+                                                                    )
+
     # codes = activation_data[f'sparse_{layer}']
-    codes = activation_data[f'hidden_{layer}']
+    # codes = activation_data[f'hidden_{layer}']
+    recon_max_sparse_tensor = torch.cat(recon_max_sparse_training, dim=0)
+    codes = recon_max_sparse_tensor.cpu().numpy()
+    # codes = activation_data[f'recon_{layer}']
     labels = activation_data['labels']
 
 
@@ -97,12 +119,12 @@ for best_model_path in model_paths:
         act_j = codes[:, j]
 
         # normalized MI variant
-        thr = np.percentile(act_j, 75)           # e.g. threshold at top 25%
-        binarized = (act_j > thr).astype(int)
-        mi = mutual_info_score(binarized, labels)
-        p_on = binarized.mean()
-        h_on = -(p_on*np.log2(p_on + 1e-12) + (1-p_on)*np.log2(1-p_on + 1e-12))
-        mi_indices[j] = mi / (h_on + 1e-12)
+        # thr = np.percentile(act_j, 75)           # e.g. threshold at top 25%
+        # binarized = (act_j > thr).astype(int)
+        # mi = mutual_info_score(binarized, labels)
+        # p_on = binarized.mean()
+        # h_on = -(p_on*np.log2(p_on + 1e-12) + (1-p_on)*np.log2(1-p_on + 1e-12))
+        # mi_indices[j] = mi / (h_on + 1e-12)
 
         # standard CSI
         act_j_rectified = np.maximum(0, act_j)
@@ -113,6 +135,6 @@ for best_model_path in model_paths:
         denominator = mu_max + mu_other + 1e-12
         csi_indices[j] = (mu_max - mu_other) / denominator if denominator != 0 else 0
 
-    print("Mean class-selectivity (normalized MI):", mi_indices.mean())
+    # print("Mean class-selectivity (normalized MI):", mi_indices.mean())
     print("Mean class-selectivity:", csi_indices.mean())
     print("#" * 60)

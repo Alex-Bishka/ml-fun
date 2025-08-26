@@ -105,7 +105,7 @@ L1_config = {
     # "last_layer":   [5e-4, 4e-4, 3e-4, 2e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7]
     # "last_layer":   [5e-4, 2e-4, 1e-5]
     # "last_layer":   [2e-4, 5e-5, 1e-5, 5e-6]
-    "last_layer":   [2e-4, 1e-4]
+    "last_layer":   [7e-5]
 }
 
 results_df = pd.DataFrame(columns=['layer_name', 'l1_penalty', 'accuracy', 'sparsity'])

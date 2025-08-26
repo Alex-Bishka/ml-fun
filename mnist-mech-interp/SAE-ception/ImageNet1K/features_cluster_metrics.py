@@ -12,7 +12,8 @@ from helpers.helpers import SNE_plot_2d
 # ACTIVATIONS_BASE_PATH = "./SAE-Results/test-features/F0/activations"
 # ACTIVATIONS_BASE_PATH = "./act-baseline"
 # ACTIVATIONS_BASE_PATH = "./act-F0"
-ACTIVATIONS_BASE_PATH = "./act-F1"
+# ACTIVATIONS_BASE_PATH = "./act-F1"
+ACTIVATIONS_BASE_PATH = "./act-F2"
 
 def get_sorted_chunks(path):
     """Finds and sorts chunk files numerically."""

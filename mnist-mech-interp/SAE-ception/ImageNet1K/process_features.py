@@ -16,11 +16,17 @@ N_TOP_FEATURES = 25 # The 'N' for finding top features
 # Match these with your training/generation scripts
 # SAE_MODEL_PATH = "./sae_models/baseline/sae_last_layer_l1_0.0005_30.pth"
 # SAE_MODEL_PATH = "./sae_models/F0/sae_last_layer_l1_0.0002.pth"
-SAE_MODEL_PATH = "./sae_models/F1/sae_last_layer_l1_0.0001.pth"
+# SAE_MODEL_PATH = "./sae_models/F1/sae_last_layer_l1_0.0001.pth"
+SAE_MODEL_PATH = "./sae_models/F2/sae_last_layer_l1_7e-05.pth"
 
 # ACTIVATIONS_BASE_PATH = "./SAE-Results/training-features/baseline/activations"
 # ACTIVATIONS_BASE_PATH = "./SAE-Results/training-features/F0/act-F0"
-ACTIVATIONS_BASE_PATH = "act-F1" 
+# ACTIVATIONS_BASE_PATH = "act-F1" 
+
+# ACTIVATIONS_BASE_PATH = "./SAE-Results/test-features/baseline/act-baseline"
+# ACTIVATIONS_BASE_PATH = "./SAE-Results/test-features/F0/act-F0"
+# ACTIVATIONS_BASE_PATH = "./SAE-Results/test-features/F1/act-F1"
+ACTIVATIONS_BASE_PATH = "./SAE-Results/test-features/F2/act-F2"
 
 OUTPUT_PATH = f"./aux-activations-top-{N_TOP_FEATURES}"
 TOP_FEATURES_FILE = "./top_N_features.pkl"
@@ -30,7 +36,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # --- 2. Helper function to sort chunk files numerically ---
 def get_sorted_chunks(path):
     """Finds and sorts chunk files numerically."""
-    chunk_files = glob.glob(os.path.join(path, 'chunk_*.npz'))
+    chunk_files = glob.glob(os.path.join(path, '*.npz'))
     if not chunk_files:
         raise FileNotFoundError(f"No chunk files found in {path}")
     

@@ -12,20 +12,21 @@ from sklearn.metrics import adjusted_rand_score, silhouette_score, davies_bouldi
 from sklearn.manifold import TSNE
 
 from helpers.sae import SparseAutoencoder
-from helpers.helpers import extract_activations, SNE_plot_2d
+from helpers.helpers import extract_activations, SNE_plot_2d, get_top_N_features, get_sublabel_data
 
 EMBEDS_PATH = './embeds/pos_embed_edge_384_99.56.pth'
+
 # VIT_PATH = './classifiers/baseline/vit_h_99.56.pth'
 # SAE_PATH = './sae_models/baseline-99.56/last_layer/sae_last_layer_l1_0.0002.pth'
 
 # VIT_PATH = './classifiers/F0/best_model_lf_0.01.pth'
 # SAE_PATH = './sae_models/F0/sae_last_layer_l1_0.0002.pth'
 
-VIT_PATH = './classifiers/F1/best_model_lf_0.01.pth'
-SAE_PATH = './sae_models/F1/sae_last_layer_l1_0.0002.pth'
+# VIT_PATH = './classifiers/F1/best_model_lf_0.01.pth'
+# SAE_PATH = './sae_models/F1/sae_last_layer_l1_0.0002.pth'
 
-# VIT_PATH = './classifiers/F2/best_model_lf_0.3.pth'
-# SAE_PATH = './sae_models/F2/sae_last_layer_l1_0.0002.pth'
+VIT_PATH = './classifiers/F2/best_model_lf_0.3.pth'
+SAE_PATH = './sae_models/F2/sae_last_layer_l1_0.0002.pth'
 
 IMG_RES = 384
 FEATURE_DIM = 1280
@@ -66,8 +67,35 @@ activation_data = extract_activations(
     device=device
 )
 
+sparse_vector_sizes = [25]
+for N_recon in sparse_vector_sizes:
+    labels = activation_data["labels"]
+    sparse_act_one = activation_data["sparse"]
+    avg_digit_encoding, top_n_features = get_top_N_features(N_recon, sparse_act_one, labels)
+    
+    feature_indices_dict = {}
+    for digit in range(0, 10):
+        feature_indices_dict[digit] = top_n_features[digit]['indices']
+    
+    print("Features used:")
+    print(len(feature_indices_dict[0]))
+    
+    recon_max_sparse_training, recon_max_sparse_ablated_training = get_sublabel_data(
+                                                                    labels,
+                                                                    feature_indices_dict,
+                                                                    sparse_act_one,
+                                                                    sae,
+                                                                    device,
+                                                                    FEATURE_DIM * 4
+                                                                )
+
+
+recon_max_sparse_tensor = torch.cat(recon_max_sparse_training, dim=0)
+codes = recon_max_sparse_tensor.cpu().numpy()
+
 # codes = activation_data['sparse']
-codes = activation_data['hidden']
+# codes = activation_data['hidden']
+# codes = activation_data['recon']
 labels = activation_data['labels']
 
 H = codes.shape[1]
@@ -80,12 +108,12 @@ for j in range(H):
     act_j = codes[:, j]
 
     # normalized MI variant
-    thr = np.percentile(act_j, 75)           # e.g. threshold at top 25%
-    binarized = (act_j > thr).astype(int)
-    mi = mutual_info_score(binarized, labels)
-    p_on = binarized.mean()
-    h_on = -(p_on*np.log2(p_on + 1e-12) + (1-p_on)*np.log2(1-p_on + 1e-12))
-    mi_indices[j] = mi / (h_on + 1e-12)
+    # thr = np.percentile(act_j, 75)           # e.g. threshold at top 25%
+    # binarized = (act_j > thr).astype(int)
+    # mi = mutual_info_score(binarized, labels)
+    # p_on = binarized.mean()
+    # h_on = -(p_on*np.log2(p_on + 1e-12) + (1-p_on)*np.log2(1-p_on + 1e-12))
+    # mi_indices[j] = mi / (h_on + 1e-12)
 
     # standard CSI
     act_j_rectified = np.maximum(0, act_j)
@@ -96,7 +124,7 @@ for j in range(H):
     denominator = mu_max + mu_other + 1e-12
     csi_indices[j] = (mu_max - mu_other) / denominator if denominator != 0 else 0
 
-print("Mean class-selectivity (normalized MI):", mi_indices.mean())
+# print("Mean class-selectivity (normalized MI):", mi_indices.mean())
 print("Mean class-selectivity:", csi_indices.mean())
 print("#" * 60)
 

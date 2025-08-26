@@ -23,9 +23,13 @@ SEED = 42
 # SAE_MODEL_PATH = "./sae_models/F0/sae_last_layer_l1_0.0005.pth"
 # output_dir = "act-F0"
 
-MODEL_LOAD_PATH = './SAE-Results/results/F1/best_model_lf_0.5.pth'
-SAE_MODEL_PATH = "./sae_models/F1/sae_last_layer_l1_0.0001.pth"
-output_dir = "act-F1"
+# MODEL_LOAD_PATH = './SAE-Results/results/F1/best_model_lf_0.5.pth'
+# SAE_MODEL_PATH = "./sae_models/F1/sae_last_layer_l1_0.0001.pth"
+# output_dir = "act-F1"
+
+MODEL_LOAD_PATH = './SAE-Results/results/F2/best_model_lf_0.5.pth'
+SAE_MODEL_PATH = "./sae_models/F2/sae_last_layer_l1_7e-05.pth"
+output_dir = "act-F2"
 
 BATCH_SIZE = 128
 
@@ -88,19 +92,19 @@ test_loader = DataLoader(test_split, batch_size=BATCH_SIZE, collate_fn=collate_f
 
 
 print("\n--- 3. Extracting Activations (from train data -> model adaptation) ---")
-activation_data = extract_activations(
-    data_loader=train_loader,
-    model=model,
-    sae=sae,
-    device=device,
-    output_dir=output_dir
-)
-
-# print("\n--- 3. Extracting Activations (from test data -> metrics) ---")
 # activation_data = extract_activations(
-#     data_loader=test_loader,
+#     data_loader=train_loader,
 #     model=model,
 #     sae=sae,
 #     device=device,
 #     output_dir=output_dir
 # )
+
+# print("\n--- 3. Extracting Activations (from test data -> metrics) ---")
+activation_data = extract_activations(
+    data_loader=test_loader,
+    model=model,
+    sae=sae,
+    device=device,
+    output_dir=output_dir
+)
