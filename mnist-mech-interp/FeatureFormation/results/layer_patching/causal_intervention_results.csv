@@ -1,0 +1,3 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+0,MLP_LAYER,The 'Lets go' feature is encoded in the MLP of Layer 1,"Come on, everyone! Let's","Come on, everyone! We must","('go', 'act')",N/A (MLP Output),-0.125,0.1875,0.3125,Hypothesis Confirmed
+25,MLP_LAYER,The Declarative feature is encoded in the MLP of Layer 25,The captain stood bravely on the deck of the,On the deck stood bravely the captain of the,"('ship', 'sea')",N/A (MLP Output),4.625,4.6875,0.0625,Hypothesis Falsified / Weak Effect

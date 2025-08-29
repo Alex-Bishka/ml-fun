@@ -1,0 +1,31 @@
+rank,activation,trigger_token,context
+1,0.0859375, and,<bos>Bella was a human--> and<-- she liked to play with her friends. One day
+2,0.078125, Her, there was a rich man who had a daughter.--> Her<-- name was Tammy and she was three years old.
+3,0.07763671875, had,<bos>Once there was a boy. He--> had<-- a toy ball which he loved very much. He
+4,0.07666015625,",","<bos>Mia was running around-->,<-- playing with her friends. Her mom yelled, """
+5,0.07568359375, shining,<bos>The light was--> shining<-- on a book. It had been laying on the
+6,0.0751953125, a,<bos>Mum had--> a<-- very special job for her and her daughter. She
+7,0.07470703125,",","<bos>One day in the garden-->,<-- Sue and Jack were playing. They saw something very"
+8,0.07421875, was,<bos>The church--> was<-- big and tall. It was made of wood and
+9,0.0732421875, a,<bos>Jazz was--> a<-- hot dog. He loved to run in circles and
+10,0.07275390625, was,<bos>Windy--> was<-- excited. She was going to pick tomatoes from the
+11,0.07275390625, who,<bos>Little Joe had an uncle--> who<-- was always very tidy. When Joe asked his uncle
+12,0.07177734375,",","<bos>One day-->,<-- Peter and his mom went to the park. Peter"
+13,0.07177734375,",","<bos>One day-->,<-- a little girl named Amy found an old umbrella in"
+14,0.07177734375,",","<bos>One day-->,<-- a big boy named Tom found a wallet on the"
+15,0.07177734375,",","<bos>One day-->,<-- a small, independent cat named Kitty went for a"
+16,0.07177734375, and," shy girl. She had big windows in her house--> and<-- she loved to look out of them. However,"
+17,0.07177734375,",","<bos>One day-->,<-- a little boy was walking near his house when he"
+18,0.07177734375,",","<bos>One day-->,<-- a little boy named Tim went to the park with"
+19,0.0712890625,",","<bos>One day-->,<-- two friends decided to measure something unusual. They hugged"
+20,0.0712890625, They, a time there was a team of special people.--> They<-- made sure that things that were broken got fixed.
+21,0.0712890625,",","<bos>One day-->,<-- a little infant was crying. Her mommy came to"
+22,0.0712890625, and,"<bos>Once upon a time, there was a prince--> and<-- he was very brave. He liked to rescue things"
+23,0.0712890625,",","<bos>One day-->,<-- a cop walked into town, looking for someone to"
+24,0.0712890625,",","<bos>One day-->,<-- a brilliant bee flew into a garden. She saw"
+25,0.0712890625,",","<bos>One day-->,<-- a little girl named Lily went to her friend Tim"
+26,0.0712890625,",","<bos>One day-->,<-- Sarah was walking in the park when she saw a"
+27,0.0712890625,",","<bos>One day-->,<-- two green birds were flying in the sky. They"
+28,0.0712890625,",","<bos>One day-->,<-- in a very sunny place, there were two friends"
+29,0.0712890625, They,<bos>Tom and Sam were brothers.--> They<-- liked to play with their toys in their room.
+30,0.07080078125,",","<bos>One day-->,<-- a little girl named Lucy was walking through the park"

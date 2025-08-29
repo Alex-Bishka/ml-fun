@@ -1,0 +1,23 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,"Come on, everyone! Let's",N/A (Multi-Ablation),"('go', 'act')",N/A,7.0625,6.3125,-0.75,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,"Come on, everyone! Let's",N/A (Multi-Amplified x2.0),"('go', 'act')",N/A,7.0625,7.875,0.8125,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,The sun is shining! Let's,N/A (Multi-Ablation),"('go', 'stay')",N/A,5.4375,4.75,-0.6875,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,The sun is shining! Let's,N/A (Multi-Amplified x2.0),"('go', 'stay')",N/A,5.4375,5.75,0.3125,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,"The movie is about to start, Let's",N/A (Multi-Ablation),"('go', 'wait')",N/A,6.1875,5.5625,-0.625,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,"The movie is about to start, Let's",N/A (Multi-Amplified x2.0),"('go', 'wait')",N/A,6.1875,6.5625,0.375,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,I'm hungry. Let's,N/A (Multi-Ablation),"('go', 'eat')",N/A,-0.125,-0.25,-0.125,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,I'm hungry. Let's,N/A (Multi-Amplified x2.0),"('go', 'eat')",N/A,-0.125,-0.125,0.0,Hypothesis Falsified / Weak Effect
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,The park is just around the corner. Let's,N/A (Multi-Ablation),"('go', 'run')",N/A,4.9375,4.6875,-0.25,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,The park is just around the corner. Let's,N/A (Multi-Amplified x2.0),"('go', 'run')",N/A,4.9375,5.1875,0.25,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,I hear music downstairs. Let's,N/A (Multi-Ablation),"('go', 'listen')",N/A,4.5625,4.375,-0.1875,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,I hear music downstairs. Let's,N/A (Multi-Amplified x2.0),"('go', 'listen')",N/A,4.5625,4.5625,0.0,Hypothesis Falsified / Weak Effect
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,Look at that huge slide! Let's,N/A (Multi-Ablation),"('go', 'jump')",N/A,4.0,3.8125,-0.1875,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,Look at that huge slide! Let's,N/A (Multi-Amplified x2.0),"('go', 'jump')",N/A,4.0,4.1875,0.1875,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,"We've finished all our chores for the day. Now, let's",N/A (Multi-Ablation),"('go', 'rest')",N/A,3.375,2.9375,-0.4375,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,"We've finished all our chores for the day. Now, let's",N/A (Multi-Amplified x2.0),"('go', 'rest')",N/A,3.375,3.625,0.25,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,"The treasure map says the 'X' is in the old cave. Come on, let's",N/A (Multi-Ablation),"('go', 'look')",N/A,5.3125,4.8125,-0.5,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,"The treasure map says the 'X' is in the old cave. Come on, let's",N/A (Multi-Amplified x2.0),"('go', 'look')",N/A,5.3125,5.4375,0.125,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,It's starting to rain. I don't think we should be out here. Let's,N/A (Multi-Ablation),"('go', 'stay')",N/A,6.0,5.9375,-0.0625,Hypothesis Falsified / Weak Effect
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,It's starting to rain. I don't think we should be out here. Let's,N/A (Multi-Amplified x2.0),"('go', 'stay')",N/A,6.0,6.3125,0.3125,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Ablation damages concept,We need to start this project. Let's,N/A (Multi-Ablation),"('go', 'begin')",N/A,-0.375,-0.5625,-0.1875,Hypothesis Confirmed
+"[7, 21, 23, 24]","[4, 6, 0, 3]",Multi-Head Amplification enhances concept,We need to start this project. Let's,N/A (Multi-Amplified x2.0),"('go', 'begin')",N/A,-0.375,0.0,0.375,Hypothesis Confirmed

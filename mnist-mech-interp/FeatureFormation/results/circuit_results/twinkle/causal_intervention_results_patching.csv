@@ -1,0 +1,2 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+24,3,Head L25H4 is a general-purpose noun concept propagator,"Bim-bam, boo-ba, li-la","Considering, observing, then","('doo', 'act')",N/A (Head Output),-7.25,-6.125,1.125,Hypothesis Confirmed

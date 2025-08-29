@@ -1,0 +1,3 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+10,8795,Causally promotes rhyme/collocation completion,"Twinkle, twinkle, little","Shining, shining, little","('star', 'light')","tensor(-0.2344, device='cuda:0', dtype=torch.bfloat16)",2.375,2.375,0.0,Hypothesis Falsified / Weak Effect
+10,8795,Causally promotes completion of the phrase 'Let's go',"Come on, everyone! Let's","Come on, everyone! We must","('go', 'act')","tensor(-0.4219, device='cuda:0', dtype=torch.bfloat16)",-0.125,-0.125,0.0,Hypothesis Falsified / Weak Effect

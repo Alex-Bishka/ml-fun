@@ -1,0 +1,35 @@
+rank,activation,trigger_token,context
+1,0.64453125, to, knew her numbers. Lily counted all the way up--> to<-- ten and her mommy was very proud of her.
+2,0.59765625,",","<bos>Tammy was 3 years old. One day-->,<-- when she was playing outside, she saw something sparkly"
+3,0.51171875, They,<bos>Tom and Sam are brothers.--> They<-- like to play in the park. They see a
+4,0.51171875, They,<bos>Tom and Sam are brothers.--> They<-- share a room. Tom likes to keep his toys
+5,0.5, ," he stood back to see how tall it was.--> <--
+
+But then, the tower fell down and Timmy"
+6,0.408203125, are,<bos>Tom and Sam--> are<-- friends. They like to play with cars and balls
+7,0.392578125,1," together.
+
+First, Sam counted up to -->1<--0! Then, Tad told Sam all about his"
+8,0.365234375, a,<bos>John had--> a<-- big job to do. He had to sort all
+9,0.36328125, to,Jack loved playing games with the numbers. He tried--> to<-- make them look like patterns and shapes. It was
+10,0.33984375, are,<bos>Tom and Mia--> are<-- friends. They like to play in the park.
+11,0.337890625, are,<bos>Tom and Mia--> are<-- friends. They like to play in the park.
+12,0.322265625, to,<bos>Tom and Lily wanted--> to<-- play in the park. They put on their shoes
+13,0.3125, was, and Jane. Sam was three years old and Jane--> was<-- six years old. Sam and Jane enjoyed playing together
+14,0.30859375, a,<bos>Sammy had--> a<-- big day ahead. He was playing his first game
+15,0.302734375, like,<bos>Tom and Mia--> like<-- to look at the stars at night. They go
+16,0.302734375, like,<bos>Tom and Mia--> like<-- to play by the river. They have a raft
+17,0.29296875, are,<bos>Ben and Mia--> are<-- twins. They like to play with their stuff.
+18,0.29296875, like,<bos>Tom and Anna--> like<-- to play knights and dragons. Tom has a big
+19,0.29296875, like,<bos>Ben and Mia--> like<-- to play with their toy box. They have many
+20,0.291015625, a,"<bos>Lily wanted to make--> a<-- card for daddy. She found some paper, crayons"
+21,0.28515625, are,<bos>Tom and Amy--> are<-- children. They like to play in the park.
+22,0.275390625, are,"<bos>Tom and Anna--> are<-- friends. They like to play together. Today,"
+23,0.271484375, like,<bos>Tom and Lily--> like<-- to play in the park. They like to slide
+24,0.26953125, a," asked his pupils to guess how many apples were in--> a<-- basket. One pupil guessed ten, another guessed twenty"
+25,0.267578125, had,<bos>Sam's mum--> had<-- made some amazing pastries for him and his brother to
+26,0.263671875,","," wrote!"" His mom looked at the letter and said-->,<-- ""This is great, honey. Now you need"
+27,0.259765625, are,<bos>Ben and Lily--> are<-- playing in the farm. They like to run and
+28,0.259765625, are,"<bos>Ben and Lily--> are<-- twins. They love to play together, but sometimes"
+29,0.259765625, are,<bos>Ben and Lily--> are<-- twins. They like to play soccer with their friends
+30,0.2578125, They,"<bos>Sara and Ben are twins.--> They<-- like to play with water. One day, they"

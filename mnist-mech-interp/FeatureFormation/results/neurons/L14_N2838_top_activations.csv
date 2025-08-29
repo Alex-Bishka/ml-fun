@@ -1,0 +1,37 @@
+rank,activation,trigger_token,context
+1,0.396484375, the,John was playing catch with his dad. He threw--> the<-- baseball and it landed deep in the grass. His
+2,0.392578125, the," spun until she was dizzy. Then she fell on--> the<-- grass and laughed.
+
+""Anna, time for"
+3,0.328125, the," job to do. He had to sort all of--> the<-- pieces. First, he grabbed the waffles. He"
+4,0.314453125, the,<bos>Jill was walking in--> the<-- park when she saw a barrel. She went over
+5,0.3125, the,<bos>James and his mom were walking to--> the<-- park one day. James saw a beautiful raven flying
+6,0.310546875, to,<bos>Joseph went outside--> to<-- admire the big house across the street. He thought
+7,0.296875, the,"<bos>Joey was standing outside--> the<-- church, dreaming. He wanted to go inside,"
+8,0.294921875, the,<bos>Monkey was embarrassed. He saw--> the<-- stone on the path and he wanted to kick it
+9,0.294921875, the,<bos>Jim was walking in--> the<-- park one day when he spotted something furry by a
+10,0.283203125, the,<bos>Max and his family went to--> the<-- opera house one cold night. His dad carried him
+11,0.283203125, his,<bos>John loaded--> his<-- truck with zero bananas. He was fearful he wouldn
+12,0.28125, the," and gasped with delight. The scenery flew past as--> the<-- train sped down the track.
+
+Jenna's"
+13,0.275390625, playing,<bos>Kenny was--> playing<-- in his garden when his stomach started to feel bad
+14,0.271484375, playing,<bos>John was--> playing<-- with his toys outside on the lawn. His mom
+15,0.271484375, the,<bos>Lily and Sam were at--> the<-- park with their mum. They liked to play on
+16,0.271484375, the,<bos>Tom and Lily were going to--> the<-- park with Mom. They liked the park. It
+17,0.26953125, the,<bos>Lila and Tom wanted to go to--> the<-- beach. They liked to play in the sand and
+18,0.255859375, his,<bos>Freddy was excited as he watched--> his<-- mom work. She was using a special pen with
+19,0.25390625, the,<bos>Lily and Ben were at--> the<-- beach with their mom and dad. They liked to
+20,0.251953125, the,<bos>Sam and his dad were running in--> the<-- park. Sam loved running because he was very fast
+21,0.2470703125, lake,"<bos>John and his Mom were walking near the--> lake<--.
+
+""Look, Mom!"" John yelled,"
+22,0.240234375, playing,"<bos>Jimmy was--> playing<-- with some blocks on the floor. His dog,"
+23,0.2392578125, standing,<bos>Sally and her dad were--> standing<-- in the driveway admiring the shiny new motorcycle. Dad
+24,0.23828125, playing,<bos>Tommy was--> playing<-- with his blocks one day. He was having a
+25,0.2373046875, cold, shoes and hats and go outside. The air is--> cold<-- and wet. They see mist on the grass and
+26,0.23046875, He,<bos>John was very flexible.--> He<-- could do all kinds of fun things with his body
+27,0.228515625, the,<bos>Alex and his mom were in--> the<-- park one warm summer day. Alex had brought his
+28,0.22265625, the,<bos>Jimmy and his friends were playing on--> the<-- playground. Jimmy wanted to play a game and his
+29,0.2197265625, the,<bos>Tom and Mia were playing on--> the<-- beach. They liked to make sand castles and look
+30,0.21875, in,<bos>Jane lived--> in<-- a big house. She wanted to get stronger and

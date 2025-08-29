@@ -1,0 +1,2 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+3,915,Causally promotes semantic concepts of the activating noun,"At the aquarium, we saw a giant, glowing jellyfish and","On the highway, we saw a long, red truck and","('tentacles', 'wheels')","tensor(0.3418, device='cuda:0', dtype=torch.bfloat16)",-4.25,-4.1875,0.0625,Hypothesis Falsified / Weak Effect

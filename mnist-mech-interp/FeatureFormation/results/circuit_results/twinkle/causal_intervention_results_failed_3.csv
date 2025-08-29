@@ -1,0 +1,13 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"Bim-bam, boo-ba, li-la",N/A (Multi-Ablation),"('doo', 'act')",N/A,6.125,5.375,-0.75,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"Bim-bam, boo-ba, li-la",N/A (Multi-Amplified x2.0),"('doo', 'act')",N/A,6.125,6.53125,0.40625,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"The class counted together: one, two, three, four,",N/A (Multi-Ablation),"('five', 'teacher')",N/A,9.5,9.375,-0.125,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"The class counted together: one, two, three, four,",N/A (Multi-Amplified x2.0),"('five', 'teacher')",N/A,9.5,9.5,0.0,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"The rocket countdown was ten, nine, eight, seven,",N/A (Multi-Ablation),"('six', 'launch')",N/A,9.9375,9.9375,0.0,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"The rocket countdown was ten, nine, eight, seven,",N/A (Multi-Amplified x2.0),"('six', 'launch')",N/A,9.9375,9.9375,0.0,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"The drum beat went on: boom, boom, boom, boom,",N/A (Multi-Ablation),"('boom', 'louder')",N/A,4.875,4.4375,-0.4375,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"The drum beat went on: boom, boom, boom, boom,",N/A (Multi-Amplified x2.0),"('boom', 'louder')",N/A,4.875,5.25,0.375,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"He recited the first letters of the alphabet: A, B, C, D,",N/A (Multi-Ablation),"('E', 'and')",N/A,2.75,2.375,-0.375,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"He recited the first letters of the alphabet: A, B, C, D,",N/A (Multi-Amplified x2.0),"('E', 'and')",N/A,2.75,2.875,0.125,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"The simple pattern just repeated: up, down, up, down, up,",N/A (Multi-Ablation),"('down', 'then')",N/A,8.75,8.375,-0.375,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"The simple pattern just repeated: up, down, up, down, up,",N/A (Multi-Amplified x2.0),"('down', 'then')",N/A,8.75,9.0,0.25,Hypothesis Falsified / Weak Effect

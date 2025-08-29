@@ -1,0 +1,2 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+12,2708,Causal for British English Orthography,My favourite professor in London taught me to,My favorite professor in New York taught me to,"('realise', 'realize')","tensor(0.0217, device='cuda:0', dtype=torch.bfloat16)",-5.5625,-5.59375,-0.03125,Hypothesis Falsified / Weak Effect

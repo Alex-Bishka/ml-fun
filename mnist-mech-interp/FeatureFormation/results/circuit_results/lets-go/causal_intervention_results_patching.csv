@@ -1,0 +1,11 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+23,0,Head L23H0 is a 'Let's go' propagator,The coast is clear now. Let's,The instructions say to wait. We should,"('go', 'wait')",N/A (Head Output),-5.625,-4.5,1.125,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,The adventure is this way! Let's,"Tippy-tappy, toe-toe, on the","('go', 'floor')",N/A (Head Output),2.25,2.6875,0.4375,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,The bus is about to leave! Let's,"The show is over, time to sit and","('go', 'rest')",N/A (Head Output),-1.9375,-1.0,0.9375,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,Everyone is waiting for us. Let's,"After that long day, I think we should just","('go', 'relax')",N/A (Head Output),-0.875,-0.5,0.375,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,The gate is open now. Let's,The book is open now. Let's,"('go', 'read')",N/A (Head Output),-1.0625,-0.4375,0.625,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,"Hurry, the train is here! Let's","Quiet, the baby is asleep. Let's","('go', 'whisper')",N/A (Head Output),4.375,4.5625,0.1875,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,The path ahead looks clear. Let's,The problem ahead looks hard. Let's,"('go', 'think')",N/A (Head Output),-0.0625,0.1875,0.25,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,The concert is starting! Let's,The long day is ending. Let's,"('go', 'rest')",N/A (Head Output),3.125,3.25,0.125,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,Grab your coat and let's,Grab your fork and let's,"('go', 'eat')",N/A (Head Output),0.0625,0.4375,0.375,Hypothesis Confirmed
+23,0,Head L23H0 is a 'Let's go' propagator,The taxi is waiting outside. Let's,The movie is starting inside. Let's,"('go', 'watch')",N/A (Head Output),0.75,1.0,0.25,Hypothesis Confirmed

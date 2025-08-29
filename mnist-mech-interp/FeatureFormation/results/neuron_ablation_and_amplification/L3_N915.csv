@@ -1,0 +1,7 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+3,915,Ablation damages concept of activating noun,"At the aquarium, we saw a giant, glowing jellyfish and",N/A (Ablation),"('tentacles', 'wheels')",0.341796875,7.5625,7.5,-0.0625,Hypothesis Falsified / Weak Effect
+3,915,Amplification enhances concept of activating noun,"At the aquarium, we saw a giant, glowing jellyfish and",N/A (Amplified x5.0),"('tentacles', 'wheels')",0.341796875,7.5625,7.5625,0.0,Hypothesis Falsified / Weak Effect
+3,915,Ablation damages concept of activating noun,"At the aquarium, we saw a giant, glowing jellyfish and",N/A (Ablation),"('tentacles', 'wheels')",0.341796875,7.5625,7.5,-0.0625,Hypothesis Falsified / Weak Effect
+3,915,Amplification enhances concept of activating noun,"At the aquarium, we saw a giant, glowing jellyfish and",N/A (Amplified x20.0),"('tentacles', 'wheels')",0.341796875,7.5625,7.5625,0.0,Hypothesis Falsified / Weak Effect
+3,915,Ablation damages concept of activating noun,"At the aquarium, we saw a giant, glowing jellyfish and",N/A (Ablation),"('tentacles', 'wheels')",0.341796875,7.5625,7.5,-0.0625,Hypothesis Falsified / Weak Effect
+3,915,Amplification enhances concept of activating noun,"At the aquarium, we saw a giant, glowing jellyfish and",N/A (Amplified x-5.0),"('tentacles', 'wheels')",0.341796875,7.5625,7.53125,-0.03125,Hypothesis Falsified / Weak Effect

@@ -1,0 +1,7 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+3,3576,Ablation damages concept of activating noun,,N/A (Ablation),"('Once', 'Therefore')",0.345703125,3.625,3.5,-0.125,Hypothesis Confirmed
+3,3576,Amplification enhances concept of activating noun,,N/A (Amplified x2.0),"('Once', 'Therefore')",0.345703125,3.625,3.5,-0.125,Hypothesis Falsified / Weak Effect
+3,3576,Ablation damages concept of activating noun,,N/A (Ablation),"('Once', 'Therefore')",0.345703125,3.625,3.5,-0.125,Hypothesis Confirmed
+3,3576,Amplification enhances concept of activating noun,,N/A (Amplified x2.0),"('Once', 'Therefore')",0.345703125,3.625,3.5,-0.125,Hypothesis Falsified / Weak Effect
+3,3576,Ablation damages concept of activating noun,,N/A (Ablation),"('Once', 'Therefore')",0.345703125,3.625,3.5,-0.125,Hypothesis Confirmed
+3,3576,Amplification enhances concept of activating noun,,N/A (Amplified x2.0),"('Once', 'Therefore')",0.345703125,3.625,3.5,-0.125,Hypothesis Falsified / Weak Effect

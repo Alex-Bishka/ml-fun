@@ -1,0 +1,2 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+10,MLP_LAYER,"The 'Twinkle, twinkle' rhyme feature is encoded in the MLP of Layer 10","Twinkle, twinkle, little","Shining, shining, little","('star', 'light')",N/A (MLP Output),2.375,2.5,0.125,Hypothesis Confirmed (feature is localized to MLP in layer 10)

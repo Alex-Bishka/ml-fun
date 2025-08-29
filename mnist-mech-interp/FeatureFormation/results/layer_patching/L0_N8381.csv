@@ -1,0 +1,2 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+1,MLP_LAYER,The 'Lets go' feature is encoded in the MLP of Layer 1,"Come on, everyone! Let's","Come on, everyone! We must","('go', 'act')",N/A (MLP Output),-0.125,-0.1875,-0.0625,Hypothesis Falsified / Weak Effect

@@ -1,0 +1,21 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"Twinkle, twinkle, little",N/A (Multi-Ablation),"('star', 'light')",N/A,5.1875,5.5625,0.375,Hypothesis Confirmed
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"Twinkle, twinkle, little",N/A (Multi-Amplified x2.0),"('star', 'light')",N/A,5.1875,4.875,-0.3125,Hypothesis Confirmed
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,Could you please pass the salt and,N/A (Multi-Ablation),"('pepper', 'vinegar')",N/A,5.1875,4.6875,-0.5,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,Could you please pass the salt and,N/A (Multi-Amplified x2.0),"('pepper', 'vinegar')",N/A,5.1875,5.1875,0.0,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,The big bad wolf started to huff and,N/A (Multi-Ablation),"('puff', 'shout')",N/A,9.375,9.3125,-0.0625,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,The big bad wolf started to huff and,N/A (Multi-Amplified x2.0),"('puff', 'shout')",N/A,9.375,9.375,0.0,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,The lawyer advised her client to read the fine,N/A (Multi-Ablation),"('print', 'text')",N/A,9.5625,9.0,-0.5625,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,The lawyer advised her client to read the fine,N/A (Multi-Amplified x2.0),"('print', 'text')",N/A,9.5625,9.625,0.0625,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"The child covered his eyes and shouted, Ready or not, here I",N/A (Multi-Ablation),"('come', 'am')",N/A,6.625,6.1875,-0.4375,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"The child covered his eyes and shouted, Ready or not, here I",N/A (Multi-Amplified x2.0),"('come', 'am')",N/A,6.625,6.75,0.125,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"On Halloween, the children all shouted, Trick or",N/A (Multi-Ablation),"('treat', 'candy')",N/A,12.25,10.1875,-2.0625,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"On Halloween, the children all shouted, Trick or",N/A (Multi-Amplified x2.0),"('treat', 'candy')",N/A,12.25,14.0,1.75,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,He loved to listen to old-fashioned rock and,N/A (Multi-Ablation),"('roll', 'music')",N/A,12.3125,11.125,-1.1875,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,He loved to listen to old-fashioned rock and,N/A (Multi-Amplified x2.0),"('roll', 'music')",N/A,12.3125,13.0,0.6875,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,"Before the meeting, she grabbed a pen and",N/A (Multi-Ablation),"('paper', 'notebook')",N/A,1.5,1.5,0.0,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,"Before the meeting, she grabbed a pen and",N/A (Multi-Amplified x2.0),"('paper', 'notebook')",N/A,1.5,1.625,0.125,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,The children's favorite game to play is hide and,N/A (Multi-Ablation),"('seek', 'find')",N/A,10.25,9.625,-0.625,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,The children's favorite game to play is hide and,N/A (Multi-Amplified x2.0),"('seek', 'find')",N/A,10.25,10.5,0.25,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Ablation damages concept,The rollercoaster went up and,N/A (Multi-Ablation),"('down', 'sideways')",N/A,10.0625,9.8125,-0.25,Hypothesis Falsified / Weak Effect
+"[20, 24]","[2, 3]",Multi-Head Amplification enhances concept,The rollercoaster went up and,N/A (Multi-Amplified x2.0),"('down', 'sideways')",N/A,10.0625,10.0,-0.0625,Hypothesis Falsified / Weak Effect

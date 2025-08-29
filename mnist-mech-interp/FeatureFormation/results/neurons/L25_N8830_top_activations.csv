@@ -1,0 +1,32 @@
+rank,activation,trigger_token,context
+1,0.1552734375,The,<bos>-->The<-- sun was shining bright and bright. It was a
+2,0.154296875,The,<bos>-->The<-- church was big and tall. It was made of
+3,0.154296875,The,<bos>-->The<-- sun was shining brightly and the birds were singing happily
+4,0.154296875,The,<bos>-->The<-- light was shining on a book. It had been
+5,0.154296875,The,<bos>-->The<-- sun shone brightly in the sky and two best friends
+6,0.154296875,The,<bos>-->The<-- gloomy morning had arrived and Charley woke up in bed
+7,0.154296875,The,<bos>-->The<-- train was impressive. It was big and shiny.
+8,0.154296875,The,<bos>-->The<-- little girl was excited to go to school. She
+9,0.154296875,The,"<bos>-->The<-- sun spread its light across the sky.
+Alice"
+10,0.154296875,The,<bos>-->The<-- dog was feeling guilty. She had done something bad
+11,0.140625,A,<bos>-->A<-- little girl was sitting in her house. She was
+12,0.111328125,M,<bos>-->M<--inty was a happy three-year-old girl
+13,0.11083984375,M,<bos>-->M<--ummy made a new dress for Sophie. She tried
+14,0.10693359375,There,<bos>-->There<-- once was a farmer who had a very modern crane
+15,0.1064453125,D,<bos>-->D<--illy was out in the park playing. She loved
+16,0.10009765625,It,<bos>-->It<-- was a hot summer's day and Little Lee
+17,0.10009765625,It,<bos>-->It<-- was a sunny day and a boy was walking outside
+18,0.10009765625,It,<bos>-->It<-- was summertime and Mommy and Daddy were planning a vacation
+19,0.0986328125,It,"<bos>-->It<-- was a bright, sunny day and Ben and his"
+20,0.09716796875,It,<bos>-->It<-- was a bright and sunny day. Mommy and Johnnie
+21,0.09423828125,",","<bos>Yesterday-->,<-- I went to the park with my mommy. We"
+22,0.09375,Jan,<bos>-->Jan<--essa was a three-year-old girl who
+23,0.09326171875,One,"<bos>-->One<-- day, Alex had some stupid luggage to wash."
+24,0.09326171875,One,"<bos>-->One<-- day, Peter met a new friend. His name"
+25,0.09326171875,One,"<bos>-->One<-- day, Tom went for a walk in the park"
+26,0.09326171875,One,"<bos>-->One<-- day, Peter and his mom went to the park"
+27,0.09326171875,One,"<bos>-->One<-- day, a little girl named Lucy was walking through"
+28,0.09326171875,One,"<bos>-->One<-- day, a little girl named Mia went for a"
+29,0.09326171875,One,"<bos>-->One<-- day, a little girl named Amy found an old"
+30,0.09326171875,One,"<bos>-->One<-- day, a tall boy named Tim went for a"

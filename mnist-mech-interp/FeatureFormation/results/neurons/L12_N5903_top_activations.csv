@@ -1,0 +1,55 @@
+rank,activation,trigger_token,context
+1,0.189453125,Hi," the horse and called out to him.
+
+""-->Hi<-- Horse!"" she said.
+
+The horse was so"
+2,0.1845703125,Hey," whistle. She walks to the slide.
+
+""-->Hey<--, you two!"" she shouts. ""What are"
+3,0.1650390625, cute,"<bos>Once upon a time, there was a--> cute<-- little kid. He was incredibly brave and he always"
+4,0.1640625, cute,"<bos>Once upon a time, there was a--> cute<-- little puppy named Max. He loved to play outside"
+5,0.1640625, cute,"<bos>Once upon a time, there was a--> cute<-- baby girl. She was just three years old and"
+6,0.15234375, cute,"<bos>Once upon a time there was a--> cute<--, little bear. He was looking for fun and"
+7,0.150390625,Hey," up to the trees and said, â€œ-->Hey<-- trees. Can you help me? I really want"
+8,0.1474609375,!,"€
+
+â€œYes, I value that-->!<--â€ beamed the first friend and put the collar"
+9,0.1435546875, your," the story is that it's important to try--> your<-- best and not be embarrassed, even if things are"
+10,0.142578125,",",". He hugs Sara.
+
+""You are welcome-->,<-- Sara,"" he says. ""You are a good"
+11,0.1357421875,","," Mia smiles and says, ""You're welcome-->,<-- Tom. You're a good brother.""
+
+"
+12,0.1357421875,","," are my friend.""
+
+""You're welcome-->,<-- Lily,"" Tom said. ""You are sweet."
+13,0.1328125,Hey," blue bird stopped for a moment and said: ""-->Hey<--, yellow bird, did you know there is a"
+14,0.1328125, and,"
+
+Sara is angry. She does not like Tom--> and<-- his blue doll anymore. She pushes Tom away."
+15,0.1328125, can," too?"" asked Lily.
+
+""Sure, you--> can<-- join us,"" said the kids.
+
+They played"
+16,0.1298828125,Hey," mean lobster. The lobster shouted at her, ""-->Hey<--! That's my jellyfish! Give it back"
+17,0.1298828125,Hi,"!"" he said.
+
+The oyster said, ""-->Hi<--, Tim! Why don't you skip through"
+18,0.1298828125,","," hugged him and said, ""You're welcome-->,<-- Ben! You are the best brother ever! Now"
+19,0.126953125, can," shook her head. ""No, Lila, you--> can<--'t. It is raining. You will get"
+20,0.125,Hey," One day, Blue saw Brown and asked, ""-->Hey<-- Brown! Do you want to come fly with me"
+21,0.125,","," hugged him. She said, ""You are welcome-->,<-- Tommy. You are a good boy. I am"
+22,0.125, little,"<bos>Once upon a time, there was a nice--> little<-- boy named Timmy. He liked to play with his"
+23,0.12451171875, little,"<bos>Once upon a time, there was a nice--> little<-- girl named Emma. Her family drove her to the"
+24,0.1240234375, little,"<bos>Once upon a time, there was a nice--> little<-- girl named Lily. She loved to eat olives and"
+25,0.12060546875, cute, time there was a little lion. He was so--> cute<-- and he liked to roar. He thought he was
+26,0.1201171875, anymore," alone. He didn't want to be alone--> anymore<--, so he went out looking for a friend."
+27,0.119140625, fun, knew what it was: It was a switch for--> fun<--! Dilly was so excited! She pushed the
+28,0.119140625,",","Mom smiles and says, ""You're welcome-->,<-- Anna. You are the best too."""
+29,0.1181640625,essa,<bos>Jan-->essa<-- was a three-year-old girl who loved
+30,0.1181640625, you," patted their heads.
+
+""You are welcome,--> you<-- are welcome!"" he said. ""You are very"

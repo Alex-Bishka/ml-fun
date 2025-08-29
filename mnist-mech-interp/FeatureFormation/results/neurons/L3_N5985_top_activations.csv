@@ -1,0 +1,39 @@
+rank,activation,trigger_token,context
+1,2.0, Star," is called 'Twinkle, Twinkle, Little--> Star<--'. Do you know it?"" Sara shakes her head"
+2,1.8046875, Sandy," upon a time, there was a little girl named--> Sandy<--. She lived on a farm and every morning she"
+3,1.7578125, Nemo,"Once upon a time, there was a fish named--> Nemo<--. Nemo lived in a big ocean with his friends"
+4,1.7265625, pig," couldn't do it. 
+
+The little--> pig<-- was sad and went to his mom. She told"
+5,1.71875, notebook," had a notebook that she loved very much. The--> notebook<-- was blue and had many pages.
+
+One day"
+6,1.6328125, Rachel,<bos>Once upon a time there was girl called--> Rachel<--. She was 3 years old and very curious
+7,1.3671875, owl,"Once upon a time, there was a wise old--> owl<-- who lived in a big tree. One day,"
+8,1.3515625, pig, he wanted to eat a little pig. The little--> pig<-- was scared and ran away. The wolf chased the
+9,1.296875, rabbit,", in a big forest, there lived a silly--> rabbit<--. The rabbit liked to wake up early every morning"
+10,1.2734375, after, Her brother said yes and they played together happily ever--> after<--. The end.
+11,1.25, Lucy,<bos>John and--> Lucy<-- were playing in the backyard. It was a sunny
+12,1.25, Jane,"<bos>Pete and--> Jane<-- were good friends. Pete lent Jane a pepper,"
+13,1.234375, Dave," a time, there were two friends, Alex and--> Dave<--. They both wanted to do something fun. So"
+14,1.2109375, Nemo,".
+
+The new fish was a clownfish named--> Nemo<--. Nemo was small, but he was very brave"
+15,1.171875, after," adventures to embark on.
+
+They lived happily ever--> after<--, safe in the knowledge that they would always have"
+16,1.1640625, caring," a few each time - after all, sharing is--> caring<--!"
+17,1.15625, onion," held up the onion. ""I will cut this--> onion<-- in half and make it disappear!"" she said."
+18,1.140625, Learn,". It has a label that says ""Match and--> Learn<--"". Inside the box, there are many cards with"
+19,1.1171875, cat,<bos>Freddy the--> cat<-- was having a great day. He went for a
+20,1.109375, Timmy," upon a time, there was a good boy named--> Timmy<--. Timmy loved to play outside with his friends."
+21,1.09375, fish,"Once upon a time, there was a great big--> fish<-- named Bob. He lived in a pond near a"
+22,1.0859375, Tom," loved to play together every day. One day,--> Tom<-- wanted to wrap a present for his mom's"
+23,1.0625, ever, made them all very happy. And they lived happily--> ever<-- after.
+24,1.0546875,Rocky," liked to play with. He named the stone ""-->Rocky<--."" Tim and Rocky would play and have lots of"
+25,1.03125, ever," will always remember this day."" And they lived happily--> ever<-- after."
+26,1.0078125, joy, a zoom. He decided he should definitely jump for--> joy<-- each morning.
+27,1.0, ever, other when they needed it. And they lived happily--> ever<-- after.
+28,0.98828125, Seth," time, there was a little boy named Seth.--> Seth<-- was tired so he decided to go for a walk"
+29,0.96484375, Peter," The town was glowing even brighter than usual. Little--> Peter<-- looked out his window and rubbed his eyes, for"
+30,0.95703125, dragons,<bos>Tom and Anna like to play knights and--> dragons<--. Tom has a big shield made of cardboard.

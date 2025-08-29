@@ -1,0 +1,3 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+25,8830,Sentence opener,The captain stood bravely on the deck of the,On the deck stood bravely the captain of the,"('ship', 'sea')","tensor(-0.0150, device='cuda:0', dtype=torch.bfloat16)",4.625,4.625,0.0,Hypothesis Falsified / Weak Effect
+25,8830,Sentence opener,The captain stood bravely on the deck of the,On the deck stood bravely the captain of the,"('ship', 'sea')","tensor(0.1553, device='cuda:0', dtype=torch.bfloat16)",4.625,4.625,0.0,Hypothesis Falsified / Weak Effect

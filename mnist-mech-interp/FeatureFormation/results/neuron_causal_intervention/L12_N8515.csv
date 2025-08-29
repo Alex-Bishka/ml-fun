@@ -1,0 +1,2 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+12,8515,Causally promotes semantic concepts of arrival/return,"After trying all day, at last he","At the start of the day, first he","('succeeded', 'started')","tensor(0.2393, device='cuda:0', dtype=torch.bfloat16)",-5.71875,-5.71875,0.0,Hypothesis Falsified / Weak Effect

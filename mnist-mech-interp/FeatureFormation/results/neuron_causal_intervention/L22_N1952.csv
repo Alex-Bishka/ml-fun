@@ -1,0 +1,2 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+22,1952,Causally promotes completion of 'so',"The ground was wet because it had rained, so","The ground was wet because it had rained, but","('puddles', 'sunshine')","tensor(-0.0009, device='cuda:0', dtype=torch.bfloat16)",0.8125,0.75,-0.0625,Hypothesis Falsified / Weak Effect

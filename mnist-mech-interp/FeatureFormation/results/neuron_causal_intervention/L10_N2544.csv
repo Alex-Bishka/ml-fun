@@ -1,0 +1,2 @@
+layer,neuron,hypothesis,clean_prompt,corrupted_prompt,answer_pair,clean_activation,corrupted_logit_diff,patched_logit_diff,causal_effect,outcome
+10,2544,Causally promotes completion of physical descriptions/body parts,"To show that she agreed, she nodded her","To show that she agreed, she wrote her","('head', 'name')","tensor(-0.0029, device='cuda:0', dtype=torch.bfloat16)",-9.75,-9.75,0.0,Hypothesis Falsified / Weak Effect

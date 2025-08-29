@@ -1,0 +1,50 @@
+Layer,Neuron,Neuron Purpose,Rationale
+0,1827,Start of Phrase Detector,"Activates on function words ('the', 'she') that typically begin a noun phrase or a clause."
+0,8381,"""Let's Go"" Phrase Detector",Hyper-specialized to detect the token 'go' only when it is preceded by 'Let's'.
+1,4401,"Indefinite Pronouns (""Anything"")","Fires on words representing totality or unboundedness, primarily 'anything' and 'everything'."
+1,5761,"Salient / ""Interesting"" Content Words",Fires on interesting or uncommon nouns ('ostrich') and other salient tokens like dialogue markers.
+2,9078,Past Tense Verb (Story Setting),"Fires on past-tense verbs at the beginning of a story to establish the initial setting (loved, was)."
+3,915,Noun and Proper Noun Detector,"Fires on a wide variety of proper nouns ('Jane') and common nouns ('acorns', 'jellyfish')."
+3,3576,Beginning of Sequence Detector (Redundant),"Another neuron that exclusively fires on the <bos> token, suggesting parallel processing pathways."
+3,4978,Beginning of Sequence Detector,Exclusively activates on the special <bos> token that marks the start of every text.
+3,5985,Noun and Proper Noun Detector,"Fires on a wide variety of proper nouns (Sandy, Nemo) and common nouns (pig, notebook)."
+6,180,Syllable / Word Fragment Detector,"Fires on fragments of words or specific syllables ('ags' in ""wags"", 'essa' in ""Janessa"")."
+6,2643,Canonical Story Opening,"Specialized inhibitory neuron that detects formulaic openings like ""Once upon a time...""."
+7,1885,Start of Sentence / New Paragraph,Fires with high activation at the beginning of a new sentence or on paragraph break tokens (\n\n).
+7,3203,Simple Action Sentence Detector,Fires on the components of a basic [Pronoun] [Action Verb] sentence structure.
+7,6049,Direct Address / Dialogue Pronouns,"Fires on first and second-person pronouns ('me', 'you') common in conversational dialogue."
+7,6816,Nursery Rhyme & Story Opening,"Fires on words and phrases common to nursery rhymes and story beginnings ('inkle', 'Mommy', 'lived')."
+9,6799,Paragraph Break Detector,Exclusively fires on the double newline token (\n\n) that represents a paragraph break.
+9,6860,"""Domestic / Family"" Concepts","Activates on a cluster of words related to home and family ('mom', 'bathtub', 'dear')."
+10,2544,Physical Descriptions / Body Parts,"Fires on the word 'head' (in ""nodded head"") and other words related to physical shape and space."
+10,8795,Common Collocations & Rhymes,"Triggers on words that are part of common phrases or rhymes (e.g., 'inkle' in ""Twinkle"", 'knock' in ""Knock, knock"")."
+12,550,Prepositional Phrase Detector,"Activates on prepositions ('to', 'with', 'on') that link actions to objects or locations."
+12,1676,Common Modifiers & Function Words,"Specializes in short, common words that modify others ('only', 'all', 'new')."
+12,2583,"Adjective Pair (""and"") Detector","Fires on 'and' when it joins two adjectives in a common collocation (safe and sound, warm and cozy)."
+12,2708,British English Spelling,"Activates on British English spellings like 'centre', 'favourite', and words like 'mum'."
+12,3339,"""Compound Subject"" (Story Opening)",Specializes in 'and' when it joins two nouns at the very beginning of a story (<bos>Tim and...).
+12,4101,Abstract Positive Concepts,"Fires on pro-social and positive abstract words like 'friends', 'kind', 'intelligent'."
+12,4347,Action/Causality Concepts,"Activates on abstract words related to tasks, actions, and logical connections ('does', 'also', 'increase')."
+12,4417,"""Arrival / Return"" Verbs","Activates on a semantic cluster of verbs like 'returned', 'arrived', 'awoke', signifying action completion."
+12,5299,Common/Low-Information Tokens,"Activates on very common function words and word fragments, possibly to manage predictable language."
+12,5521,"Verb/Adjective Conjunction (""and"")","Fires on 'and' when it connects parallel actions or states (cried and screamed, sad and scared)."
+12,5903,Positive/Friendly Adjectives & Greetings,"Fires on words like 'Hi', 'Hey', and 'cute', capturing a friendly or positive sentiment."
+12,6158,"""State of Being"" / Action Description","Fires on words describing a state or sensory detail (batter, sounded, close)."
+12,8603,Core Sentence Components,"Fires on the grammatical backbone of sentences (pronouns, articles, common verbs)."
+13,386,Sentence Initiator / Early Clause,"Activates on the first few tokens of a sentence (Her, was, a) to establish grammatical context."
+13,2156,Simple Declarative Sentence Components,"Fires on basic building blocks of simple statements (conjunctions, pronouns, simple nouns/adjectives)."
+13,2840,Dialogue & Structural Punctuation,"Activates on quotation mark fragments, newlines, and other tokens that structure dialogue."
+13,3008,Character and Possession Detector,"Fires on pronouns, names, and the possessive 's' to track characters and their relationships."
+13,8567,"Contractions, Quotations, & Connectors","Fires on tokens that structure dialogue and logic, like negative contractions (n't) and quotes."
+14,1309,Simple Narrative Tokens,"Generalist that fires on common, simple tokens ('a', 'It', '.') involved in basic sentence flow."
+14,2501,Sentence/Clause Terminator,"Activates on punctuation that ends a unit of thought, such as ., ,, and \n."
+14,2838,High-Level Phrase Starter,Fires on 'the' and 'to' to mark the start of noun/verb phrases at a high level of abstraction.
+15,1174,General High-Frequency Tokens,"Fires on a mixed bag of very common tokens ('The', 'I', 'and'), likely for general syntax processing."
+15,1997,Dialogue & Simple Narration,"Activates on components of dialogue like the verb 'said', pronouns ('you'), and commas."
+16,6285,Entity and Enumeration Detector,"Fires on plural pronouns ('They'), the verb 'are', and numbers to track entities and quantities."
+20,2465,Discourse & Narrative Flow,"Activates on tokens that structure narrative (and, ., how, say), managing the story's flow."
+22,1952,"Causal Conjunction (""so"") Detector",Specializes in the word 'so' when used to link a cause to a result.
+22,3305,Beginning of Sequence Detector,Exclusively activates on the special <bos> token that marks the start of every text.
+24,6903,Clause Boundary / Connector,"Fires at the start of new clauses or on connecting words ('and', ,), marking narrative structure."
+24,8004,Concrete Noun & Activity Detector,"Activates on nouns and concepts related to positive, child-like activities (snow, bike, fun)."
+25,8830,"""The"" at Start of Story",Exclusively fires on the token 'The' when it is the first token of a story (<bos>The...).
